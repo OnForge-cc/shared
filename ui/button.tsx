@@ -1,7 +1,7 @@
 /**
  * El billete: la única forma de botón del mundo del mapa (ver
  * `styles/site.css`, «billetes y botones»). La API de shadcn se conserva para
- * que las seis apps sigan compilando; cada variante y cada tamaño se traducen a
+ * que las apps sigan compilando; cada variante y cada tamaño se traducen a
  * las clases del billete, y el CSS del mundo, que va sin capa, gana a cualquier
  * utilidad que una pantalla vieja ponga en `className`.
  *

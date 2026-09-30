@@ -20,7 +20,7 @@
  * tiempo.
  *
  * Las mutaciones no hacen nada optimista: se espera al servidor y luego se
- * invalida. Hoy el único consumidor es pulse.
+ * invalida.
  */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 

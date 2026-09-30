@@ -21,13 +21,13 @@ Módulos de las carpetas publicadas (39), con la primera línea de su comentario
 
 | Archivo | Qué hace |
 | --- | --- |
-| [`components/confirm-delete-modal.tsx`](../components/confirm-delete-modal.tsx) | «¿Seguro?» antes de un borrado, igual en los seis productos. |
+| [`components/confirm-delete-modal.tsx`](../components/confirm-delete-modal.tsx) | «¿Seguro?» antes de un borrado, igual en toda la plataforma. |
 | [`components/console-kit.tsx`](../components/console-kit.tsx) | Las piezas de los paneles, en el vocabulario del mapa. |
-| [`components/console.tsx`](../components/console.tsx) | Las piezas de página que las seis apps ya usaban (`PageHeader`, `StatGrid`, `StatTile`, `PanelHeader`, `EmptyState`, `ConsoleTag`), redibujadas en el mundo del mapa de… |
+| [`components/console.tsx`](../components/console.tsx) | Las piezas de página que usa toda la plataforma (`PageHeader`, `StatGrid`, `StatTile`, `PanelHeader`, `EmptyState`, `ConsoleTag`), redibujadas en el mundo del mapa de… |
 | [`components/form-modal.tsx`](../components/form-modal.tsx) | El envoltorio de cualquier formulario en diálogo: título, descripción y hueco. |
 | [`components/map.tsx`](../components/map.tsx) | Las piezas pequeñas del mapa que comparten las apps de OnForge. |
-| [`components/theme-provider.tsx`](../components/theme-provider.tsx) | El mundo del mapa se lee a la luz del día: no hay tema oscuro en el sitio, en la puerta, en las consolas ni en los seis productos (decidido el 2026-09-29). |
-| [`hooks/map.ts`](../hooks/map.ts) | Los hooks de las piezas de consola (`components/console-kit.tsx`), iguales que en `ondesk/src/features/frontend/hooks.ts`: el reloj del horario, el aviso que se apaga… |
+| [`components/theme-provider.tsx`](../components/theme-provider.tsx) | El mundo del mapa se lee a la luz del día: no hay tema oscuro en el sitio, en la puerta, en las consolas ni en las apps (decidido el 2026-09-29). |
+| [`hooks/map.ts`](../hooks/map.ts) | Los hooks de las piezas de consola (`components/console-kit.tsx`), el reloj del horario, el aviso que se apaga solo, el cierre de un panel flotante, el salto a una… |
 | [`lib/crud-api.ts`](../lib/crud-api.ts) | El cliente CRUD que se repetía en cada feature, escrito una vez. |
 | [`lib/crud-hooks.ts`](../lib/crud-hooks.ts) | Los hooks de React Query que van encima de `crud-api.ts`. |
 | [`lib/initials.ts`](../lib/initials.ts) | Dos letras en lugar de alguien que todavía no tiene avatar. |
@@ -58,7 +58,7 @@ Módulos de las carpetas publicadas (39), con la primera línea de su comentario
 | [`ui/textarea.tsx`](../ui/textarea.tsx) | El campo de varias líneas, con el trazo del mundo; lo mide su `rows`. |
 | [`ui/tooltip.tsx`](../ui/tooltip.tsx) | La nota al pie de un control: tinta sobre papel, en el corte condensado, sin flecha ni radio. |
 | [`worker/cookies.ts`](../worker/cookies.ts) | Lectura de cookies, y nada más. |
-| [`worker/email.ts`](../worker/email.ts) | Email transaccional para las notificaciones de un producto. |
+| [`worker/email.ts`](../worker/email.ts) | Email transaccional para las notificaciones de la plataforma. |
 | [`worker/response.ts`](../worker/response.ts) | Las tres respuestas JSON que devuelve cualquier handler de Pages Functions. |
 
 <!-- END generated:modules -->

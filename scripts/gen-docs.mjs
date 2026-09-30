@@ -398,7 +398,7 @@ function spaRoutes() {
  * `wrangler` para local y remoto. Son instrucciones de aplicación, no una
  * descripción, y como el resumen se construye uniendo todas las líneas `--`
  * acababan DENTRO de la celda «Qué hace» — media tabla decía «… mirrored
- * wrangler d1 execute vault-db --local --file=…».
+ * wrangler d1 execute app-db --local --file=…».
  */
 const isMigrationBoilerplate = (l) =>
 	/^(wrangler|npx|npm|pnpm|yarn)\s/.test(l) || /^apply with:?$/i.test(l) || /^aplicar con:?$/i.test(l);
@@ -643,7 +643,7 @@ function config() {
 		vars,
 		crons,
 		secrets: [...secrets].sort(),
-		sharedPin: pkg.dependencies?.["@ondesk/shared"] || pkg.devDependencies?.["@ondesk/shared"] || "",
+		sharedPin: pkg.dependencies?.["@onforge/shared"] || pkg.devDependencies?.["@onforge/shared"] || "",
 		scripts: Object.entries(pkg.scripts ?? {}),
 	};
 }
@@ -674,7 +674,7 @@ function buildBlocks() {
 		cfg.wrangler?.name ? `**Proyecto Cloudflare:** \`${cfg.wrangler.name}\`` : "",
 		cfg.wrangler?.main ? `**Entrada:** [\`${cfg.wrangler.main}\`](../${cfg.wrangler.main}) (Worker)` : "",
 		cfg.wrangler?.pages_build_output_dir ? `**Salida de build:** \`${cfg.wrangler.pages_build_output_dir}\` (Pages)` : "",
-		cfg.sharedPin ? `**\`@ondesk/shared\`:** \`${cfg.sharedPin}\`` : "",
+		cfg.sharedPin ? `**\`@onforge/shared\`:** \`${cfg.sharedPin}\`` : "",
 	].filter(Boolean);
 
 	blocks["config"] = [

@@ -1,20 +1,14 @@
 /**
- * Email transaccional para las notificaciones de un producto.
+ * Email transaccional para las notificaciones de la plataforma.
  *
- * Un producto no envía nada más. Los restablecimientos de contraseña, las
- * invitaciones y los códigos de doble factor son de ondesk — los productos no
- * autentican a nadie, así que no tienen correo de cuenta que enviar. Añadir uno
- * en un producto significaría un segundo origen capaz de hablar en nombre de la
- * plataforma sobre la cuenta de alguien.
+ * Una sola implementación: `createEmailer` recibe la placa de la tarjeta y el
+ * nombre del producto, y devuelve el par `sendEmail` / `notificationEmail`, así
+ * que quien notifica nunca sabe que este paquete existe. Los correos de cuenta
+ * (restablecimientos, invitaciones, códigos de doble factor) tienen su propia
+ * plantilla en la app que autentica; aquí sólo van avisos.
  *
- * Una sola implementación, con la marca de cada producto: el
- * `functions/_lib/email.ts` de cada app llama a `createEmailer` con la placa de su
- * app y su nombre de producto y reexporta el par, así que notify.ts nunca sabe
- * que este paquete existe.
- *
- * La plantilla es el mapa de red hecho apto para correo (banda de las seis líneas,
- * placa con el swatch de la línea de la app, billete de tinta, tabla de datos);
- * ver `renderNotification`.
+ * La plantilla es el mapa de red hecho apto para correo (filete de tinta, placa,
+ * billete de tinta, tabla de datos); ver `renderNotification`.
  */
 
 interface EmailOptions {
@@ -113,8 +107,6 @@ export interface NotificationEmailInput {
 	/**
 	 * Contenido citado que se pinta bajo el cuerpo — el comentario o mensaje que
 	 * disparó el email. Los productos cuyo contenido no debe viajar por correo
-	 * (Vault: una credencial se abre por la ruta de revelado, el único camino que
-	 * registra quién miró) simplemente no lo pasan nunca.
 	 */
 	preview?: string;
 	/** Etiqueta pequeña sobre la vista previa. Por defecto «Preview». */
@@ -138,16 +130,12 @@ export interface Emailer {
 
 // ─── La tarjeta: el mapa de red hecho apto para correo ───────────────────────
 //
-// Un correo de producto es un billete impreso de la red: la banda de las seis
-// líneas, la placa de la app con el swatch de su línea al lado, un titular, una o
-// dos frases, UNA acción (un billete de tinta cuadrado) y los datos como tabla de
-// tarifas, sobre papel. Es la misma forma que `ondesk/functions/_lib/email.ts`; la
-// versión de ondesk lleva además el código y la carta del buzón, que aquí no
-// existen. Tablas con `role="presentation"`, estilos en línea en todo lo que
-// importa (el `<style>` sólo lleva la consulta de móvil), `bgcolor` además de
-// estilos, columna de 600px fluida por debajo, sin imágenes, radios ni sombras y
-// claro solo. Hay dos copias a mano de esto (`halo-realtime/src/notify.ts` y
-// `nexus-realtime/src/notify.ts`): un cambio de diseño se hace en las tres.
+// Un correo es un billete impreso de la red: un filete de tinta, la placa, un
+// titular, una o dos frases, UNA acción (un billete de tinta cuadrado) y los datos
+// como tabla de tarifas, sobre papel. Tablas con `role="presentation"`, estilos
+// en línea en todo lo que importa (el `<style>` sólo lleva la consulta de móvil),
+// `bgcolor` además de estilos, columna de 600px fluida por debajo, sin imágenes,
+// radios ni sombras y claro solo.
 
 const FONT = "'Fira Sans','Segoe UI',Helvetica,Arial,sans-serif";
 const INK = "#111111";
@@ -156,43 +144,15 @@ const RULE = "#cfcfcf";
 const PAPER = "#ffffff";
 const DESTRUCTIVE = "#b3261e";
 
-/** Las seis líneas en el orden del mapa: Pulse, Vault, Orbit, Nexus, Halo, Atlas. */
-const LINE_COLOURS = ["#e2231a", "#00843d", "#0019a8", "#ef7b10", "#b3007a", "#0098a6"];
-
-/**
- * El swatch de cada app junto a su placa. Se deduce de la última palabra del
- * nombre de marca («OnDesk Pulse» → pulse) y no de un parámetro nuevo, para que
- * un producto que aún fija una versión anterior de este paquete no falle al
- * compilar cuando cambie su envoltorio.
- */
-const APP_LINE: Record<string, string> = {
-	pulse: "#e2231a",
-	vault: "#00843d",
-	orbit: "#0019a8",
-	nexus: "#ef7b10",
-	halo: "#b3007a",
-	atlas: "#0098a6",
-};
-
-function lineFor(brandName: string): string | null {
-	const last = brandName.trim().split(/\s+/).pop()?.toLowerCase() ?? "";
-	return APP_LINE[last] ?? null;
-}
-
+/** El filete de tinta de la cabecera: una sola celda de `px` de alto. */
 function band(px: number): string {
-	const rows = LINE_COLOURS.map(
-		(colour) =>
-			`<tr><td height="${px}" bgcolor="${colour}" style="height:${px}px;line-height:${px}px;font-size:${px}px;mso-line-height-rule:exactly;background:${colour};">&nbsp;</td></tr>`,
-	).join("");
-	return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">${rows}</table>`;
+	const row = `<tr><td height="${px}" bgcolor="${INK}" style="height:${px}px;line-height:${px}px;font-size:${px}px;mso-line-height-rule:exactly;background:${INK};">&nbsp;</td></tr>`;
+	return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">${row}</table>`;
 }
 
-/** La placa (celda de tinta, texto de papel, 800) y, si hay, el swatch de la línea. */
-function plateBlock(name: string, line: string | null): string {
-	const swatch = line
-		? `<td width="10" style="width:10px;font-size:1px;line-height:1px;">&nbsp;</td><td valign="middle"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="26" height="10" bgcolor="${line}" style="width:26px;height:10px;line-height:10px;font-size:10px;mso-line-height-rule:exactly;background:${line};">&nbsp;</td></tr></table></td>`
-		: "";
-	return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td class="ink-bg" bgcolor="${INK}" style="background:${INK};color:${PAPER};font-family:${FONT};font-size:18px;font-weight:800;letter-spacing:-0.02em;line-height:22px;padding:6px 11px 8px;">${escapeHtml(name)}</td>${swatch}</tr></table>`;
+/** La placa: celda de tinta, texto de papel, 800. */
+function plateBlock(name: string): string {
+	return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td class="ink-bg" bgcolor="${INK}" style="background:${INK};color:${PAPER};font-family:${FONT};font-size:18px;font-weight:800;letter-spacing:-0.02em;line-height:22px;padding:6px 11px 8px;">${escapeHtml(name)}</td></tr></table>`;
 }
 
 function heading(text: string): string {
@@ -247,7 +207,7 @@ function previewBlock(label: string, html: string): string {
 }
 
 /** El marco completo. `footer` es HTML ya compuesto por quien llama (con sus enlaces escapados). */
-function card(input: { title: string; preheader: string; plate: string; line: string | null; content: string; footer: string }): string {
+function card(input: { title: string; preheader: string; plate: string; content: string; footer: string }): string {
 	const filler = "&nbsp;&zwnj;".repeat(40);
 	return `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -295,7 +255,7 @@ function card(input: { title: string; preheader: string; plate: string; line: st
 <tr><td align="center" style="padding:0;">
 <table role="presentation" class="col paper" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="${PAPER}" style="width:600px;max-width:600px;background:${PAPER};">
 <tr><td>${band(4)}</td></tr>
-<tr><td class="pad" style="padding:24px 32px 0;">${plateBlock(input.plate, input.line)}</td></tr>
+<tr><td class="pad" style="padding:24px 32px 0;">${plateBlock(input.plate)}</td></tr>
 <tr><td class="pad paper ink-text" style="padding:24px 32px 0;font-family:${FONT};color:${INK};">${input.content}</td></tr>
 <tr><td class="pad" style="padding:32px 32px 40px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-top:3px solid ${INK};padding:16px 0 0;font-family:${FONT};font-size:13px;line-height:1.5;color:${INK_2};">${input.footer}</td></tr></table>
@@ -313,7 +273,7 @@ function card(input: { title: string; preheader: string; plate: string; line: st
  * real puedan pegarla tal cual con su placa y su línea fijas.
  */
 function renderNotification(
-	cfg: { plate: string; line: string | null; productName: string },
+	cfg: { plate: string; productName: string },
 	input: NotificationEmailInput,
 ): string {
 	const {
@@ -337,7 +297,6 @@ function renderNotification(
 		title,
 		preheader: `Hi ${recipientName}, ${body}`,
 		plate: cfg.plate,
-		line: cfg.line,
 		footer,
 		content: [
 			heading(escapeHtml(title)),
@@ -351,9 +310,9 @@ function renderNotification(
 }
 
 export function createEmailer(brand: {
-	/** La placa de la tarjeta y el nombre From por defecto, p. ej. «OnDesk Vault»; su última palabra elige el swatch de la línea. */
+	/** La placa de la tarjeta y el nombre From por defecto, p. ej. «OnForge». */
 	brandName: string;
-	/** Cómo lo dicen el CTA y el pie, p. ej. «Vault» → «Open in Vault». */
+	/** Cómo lo dicen el CTA y el pie, p. ej. «OnForge» → «Open in OnForge». */
 	productName: string;
 }): Emailer {
 	const { brandName, productName } = brand;
@@ -394,9 +353,8 @@ export function createEmailer(brand: {
 		}
 	}
 
-	// La plantilla es `renderNotification` (arriba): la placa lleva el nombre de la app
-	// y, al lado, el swatch de su línea.
-	const cfg = { plate: brandName, line: lineFor(brandName), productName };
+		// La plantilla es `renderNotification` (arriba): la placa lleva el nombre de la marca.
+	const cfg = { plate: brandName, productName };
 
 	function notificationEmail(input: NotificationEmailInput): string {
 		return renderNotification(cfg, input);

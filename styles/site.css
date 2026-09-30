@@ -1,8 +1,8 @@
 /*
  * El mundo visual del sitio público: el mapa de red.
  *
- * Seis apps son seis líneas de color sobre papel blanco; cada persona es un
- * intercambiador y un solo billete recorre todas las líneas. Todo lo que aquí se
+ * Las apps son líneas de color sobre papel blanco; cada persona es un
+ * intercambiador y un solo billete las recorre. Todo lo que aquí se
  * declara vive bajo `.site`, así que la consola y las pantallas de auth (que
  * siguen el tema del sistema y los tokens de shadcn) no lo heredan, y el sitio
  * no hereda el modo oscuro de la consola: un mapa se lee a la luz del día.
@@ -337,7 +337,7 @@
 	border-top: 1px solid var(--rule);
 }
 
-/* El eje: la línea de OnDesk recorre toda la página por el margen izquierdo, y
+/* El eje: la línea de la plataforma recorre toda la página por el margen izquierdo, y
    cada parada de sección es un tick que la cruza. Sólo en pantallas anchas,
    donde el margen existe; los tableros de tinta (terminal, pie) la cubren. */
 .site .axis {
@@ -1163,10 +1163,8 @@
 	font-weight: 700;
 }
 
-/* ══ sólo la consola de ondesk ═════════════════════════════════════════════
-   Lo que tiene la consola de ondesk y no los paneles de partners y developers:
-   el riel de páginas del workspace y de la cuenta, el intercambiador de
-   accesos y la presencia como anillo. */
+/* ══ sólo la consola ═════════════════════════════════════════════
+   Lo que tiene la consola: el riel de páginas del workspace y de la cuenta. */
 
 /* El riel de páginas: el segundo nivel de la franja de rutas. Los mismos
    destinos en negrita con la barra de 3px bajo el actual, sobre un filete
@@ -1206,42 +1204,6 @@
 	bottom: -1px;
 	height: var(--stroke);
 	background: var(--ink);
-}
-
-/* El intercambiador de accesos: las seis líneas, en su orden de siempre, cada
-   una un tramo de su color con un anillo encima; sellado donde la persona
-   tiene la app. Una app que el workspace no tiene va al 40%, sin anillo. */
-.site .access {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.2rem;
-	vertical-align: middle;
-}
-.site .access-cell {
-	position: relative;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.6rem;
-	height: 1.25rem;
-}
-.site .access-cell::before {
-	content: "";
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 50%;
-	height: var(--line);
-	transform: translateY(-50%);
-	background: var(--swatch, var(--ink));
-}
-.site .access-cell.is-off::before {
-	opacity: 0.4;
-}
-.site .access-cell .ring {
-	position: relative;
-	width: 1rem;
-	height: 1rem;
 }
 
 /* ── entradas: una sola familia de movimiento, desde un estado ya visible ── */

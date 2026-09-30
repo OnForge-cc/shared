@@ -1,7 +1,6 @@
 /**
  * Las piezas pequeñas del mapa que comparten las apps de OnForge. Hoy sólo
- * queda `AppLine`; la banda y el cierre de seis líneas eran de los seis
- * productos de OnDesk y no viajan a este paquete.
+ * queda `AppLine`, el tramo de color junto a un nombre.
  */
 import type { CSSProperties } from "react";
 

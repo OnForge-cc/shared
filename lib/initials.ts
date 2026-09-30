@@ -6,11 +6,8 @@
  * que nadie rellenó — y «AN» sacado de un email es mejor que «?» sacado de un
  * nombre vacío.
  *
- * Una copia del `initialsOf` de OnDesk, a propósito: no se comparte nada entre
- * estos repositorios.
- * ▸ Hoy: este archivo es `@ondesk/shared/lib/initials` y lo importan los seis
- * productos; la copia aparte que queda es la de ondesk, en
- * `ondesk/src/features/console/initials.ts`.
+ * Es la única implementación: cualquier pantalla que necesite un monograma
+ * importa `@onforge/shared/lib/initials`.
  */
 export function initialsOf(name: string | undefined | null, email?: string | undefined | null): string {
 	const source = (name ?? "").trim() || email || "?";

@@ -1,11 +1,10 @@
 /**
  * Las piezas de los paneles, en el vocabulario del mapa.
  *
- * Los paneles de partners y developers, la consola de ondesk y admin son
+ * Los paneles de la consola son
  * pliegos: una sola hoja que se lee de arriba abajo, cada recado una parada en
  * el eje de la página, cada valor editable donde está impreso. Este archivo es
- * la misma copia en los cuatro proyectos (como el bloque de consola de
- * `site.css`): un cambio en uno se copia a los otros tres. El sello de estado,
+ * la única copia (como el bloque de consola de `site.css`). El sello de estado,
  * la tira «calling at», la parada de consola, los campos con el trazo del
  * mundo, la fila de guardar con su aviso reservado, el billete de copiar, el
  * diálogo de papel, el menú de acciones y el selector de workspace.
@@ -229,8 +228,8 @@ export function PlateTitle({ children }: { children: ReactNode }) {
  * workspace es el tema de todo lo que hay debajo, no un filtro sobre ello. Con
  * un solo workspace es una placa quieta. El panel que abre marca el actual con
  * el anillo relleno, deja a quien llama poner un sello por fila (PARTNER) y
- * acaba en la consola de ondesk, donde se administran (`manageHref`); la propia
- * consola de ondesk pone ahí su fila («New workspace») con `manage`.
+ * acaba en la consola, donde se administran (`manageHref`); la propia consola
+ * pone ahí su fila («New workspace») con `manage`.
  */
 export function WorkspacePlate<T extends { id: string; name: string }>({
 	current,

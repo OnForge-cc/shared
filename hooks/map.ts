@@ -1,6 +1,5 @@
 /**
- * Los hooks de las piezas de consola (`components/console-kit.tsx`), iguales
- * que en `ondesk/src/features/frontend/hooks.ts`: el reloj del horario, el
+ * Los hooks de las piezas de consola (`components/console-kit.tsx`), el reloj del horario, el
  * aviso que se apaga solo, el cierre de un panel flotante, el salto a una parada
  * y la anchura estrecha.
  */

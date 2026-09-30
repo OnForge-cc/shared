@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 /**
  * El mundo del mapa se lee a la luz del día: no hay tema oscuro en el sitio, en
- * la puerta, en las consolas ni en los seis productos (decidido el 2026-09-29).
+ * la puerta, en las consolas ni en las apps (decidido el 2026-09-29).
  *
  * Este proveedor sobrevive sólo para que una app que aún lo monte siga
  * compilando. No lee `localStorage`, no escucha al sistema y borra la clase

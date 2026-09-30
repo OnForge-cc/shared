@@ -5,7 +5,7 @@ el mundo del mapa de red en `styles/`), el cliente CRUD y sus hooks (`lib/`,
 `hooks/`) y los helpers de worker `worker/response`, `worker/email` y
 `worker/cookies`. Envía **TypeScript crudo**: no hay paso de build; el bundler de
 la app que lo consume lo compila y su `tsc` lo comprueba. Es un fork de
-`@ondesk/shared` sin presencia, llamadas, SSO de producto ni las seis líneas.
+Nació como fork del paquete compartido de OnDesk el 2026-09-29.
 El índice de módulos está en [`docs/README.md`](docs/README.md) y se regenera con
 `npm run docs`.
 

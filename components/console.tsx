@@ -1,5 +1,5 @@
 /**
- * Las piezas de página que las seis apps ya usaban (`PageHeader`, `StatGrid`,
+ * Las piezas de página que usa toda la plataforma (`PageHeader`, `StatGrid`,
  * `StatTile`, `PanelHeader`, `EmptyState`, `ConsoleTag`), redibujadas en el
  * mundo del mapa de red con la misma API, para que cada pantalla que las monta
  * se lea como una hoja de paradas sin tocarla.

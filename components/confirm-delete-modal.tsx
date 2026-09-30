@@ -10,7 +10,7 @@ import {
 } from "../ui/alert-dialog";
 
 /**
- * «¿Seguro?» antes de un borrado, igual en los seis productos.
+ * «¿Seguro?» antes de un borrado, igual en toda la plataforma.
  *
  * Es un `AlertDialog` y no un `Dialog`: el de alerta atrapa el foco y no se
  * cierra al pulsar fuera, que es lo que se quiere delante de algo irreversible.

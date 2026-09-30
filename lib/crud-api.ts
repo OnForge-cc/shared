@@ -21,14 +21,13 @@
  * ── Dos cosas que hay que saber ──────────────────────────────────────────────
  *
  * Todo va con `credentials: "include"`, que es lo que hace que funcione la
- * cookie compartida de `.ondesk.cc` contra el subdominio del producto.
+ * cookie compartida de la plataforma contra el subdominio de la app.
  *
  * Un fallo se convierte en `throw new Error(err.error)`, leyendo el
  * `{ error: string }` que garantiza `worker/response.ts`. Eso significa que el
  * CÓDIGO de estado se pierde: quien necesite distinguir un 402 `plan_limit` de
  * un 403 no puede usar estas fábricas y tiene que llamar a `fetch` a mano.
  *
- * Lo usan pulse, orbit, nexus, halo y atlas. Vault no.
  */
 interface CrudApiConfig {
 	basePath: string;

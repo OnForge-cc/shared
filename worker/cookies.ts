@@ -1,10 +1,10 @@
 /**
  * Lectura de cookies, y nada más.
  *
- * La cookie de sesión la emite ondesk sobre `Domain=.ondesk.cc` y un producto
- * sólo la lee — aquí no hay serializador a propósito, porque un producto que
- * puede escribir `access_token` es un producto que puede desacompasarse de la
- * sesión de la plataforma.
+ * La cookie de sesión la emite el control plane de OnForge y las demás apps
+ * sólo la leen — aquí no hay serializador a propósito, porque una app que puede
+ * escribir `access_token` es una app que puede desacompasarse de la sesión de la
+ * plataforma.
  */
 
 export const ACCESS_TOKEN_COOKIE = "access_token";
@@ -30,7 +30,7 @@ export function parseCookies(
  *
  * Un nombre puede aparecer legítimamente dos veces durante la migración a la
  * cookie compartida: una cookie host-only rancia de la época de la sesión por
- * producto y la de Domain=.ondesk.cc comparten nombre pero no clave de almacén,
+ * producto y la de Domain compartido comparten nombre pero no clave de almacén,
  * y el navegador envía las dos. `parseCookies` se queda con la que venga la
  * última; la verificación de sesión tiene que probar cada una hasta que alguna
  * verifique.
