@@ -119,8 +119,8 @@ export interface NotificationEmailInput {
 
 export interface Emailer {
 	/**
-	 * Envía a través de la API REST de Cloudflare Email Sending. Las Pages
-	 * Functions no pueden usar el binding `send_email` de Workers, así que esto
+	 * Envía a través de la API REST de envío de correo del proveedor. Las
+	 * Functions no pueden usar el binding `send_email` del runtime, así que esto
 	 * llama en su lugar al endpoint de ámbito de cuenta con un token de API.
 	 */
 	sendEmail(env: EmailEnv, opts: EmailOptions): Promise<void>;
