@@ -90,6 +90,7 @@ _Sin cron propio._
 
 | Script | Comando |
 | --- | --- |
+| `npm run check:neutral` | `node scripts/check-neutral.mjs` |
 | `npm run typecheck` | `tsc -p tsconfig.ui.json --noEmit && tsc -p tsconfig.worker.json --noEmit` |
 | `npm run docs` | `node scripts/gen-docs.mjs` |
 | `npm run docs:check` | `node scripts/gen-docs.mjs --check` |

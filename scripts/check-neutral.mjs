@@ -19,7 +19,7 @@ import { pathToFileURL } from "node:url";
 
 const SKIP_DIRS = new Set(["node_modules", "dist", ".git", ".wrangler", "graphify-out", "coverage", ".superpowers"]);
 const SKIP_FILES = new Set(["package-lock.json", "check-neutral.mjs", "neutral.config.json"]);
-const TEXT = /\.(ts|tsx|js|mjs|cjs|json|md|html|css|sql|toml|ya?ml|txt|xml|svg)$/i;
+const TEXT = /\.(ts|tsx|js|mjs|cjs|json|md|html|css|sql|toml|ya?ml|txt|xml|svg|example|gitignore)$/i;
 
 const EVERYWHERE = /cloudflare/i;
 const CUSTOMER =
