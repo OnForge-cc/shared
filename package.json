@@ -6,6 +6,7 @@
   "description": "Código compartido de la plataforma OnForge (UI, CRUD, helpers de worker). TypeScript crudo: lo compila el bundler de la app que lo consume.",
   "sideEffects": false,
   "scripts": {
+    "check:neutral": "node scripts/check-neutral.mjs",
     "typecheck": "tsc -p tsconfig.ui.json --noEmit && tsc -p tsconfig.worker.json --noEmit",
     "docs": "node scripts/gen-docs.mjs",
     "docs:check": "node scripts/gen-docs.mjs --check",
