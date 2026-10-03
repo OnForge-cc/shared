@@ -1,6 +1,6 @@
 {
   "name": "@onforge/shared",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "description": "Código compartido de la plataforma OnForge (UI, CRUD, helpers de worker). TypeScript crudo: lo compila el bundler de la app que lo consume.",
