@@ -612,13 +612,13 @@ function config() {
 	const push = (kind, name, detail) => name && bindings.push({ kind, name, detail: detail || "" });
 
 	if (wrangler) {
-		for (const d of wrangler.d1_databases ?? []) push("D1", d.binding, d.database_name);
-		for (const b of wrangler.r2_buckets ?? []) push("R2", b.binding, b.bucket_name);
-		for (const k of wrangler.kv_namespaces ?? []) push("KV", k.binding, k.id);
+		for (const d of wrangler.d1_databases ?? []) push("base SQL", d.binding, d.database_name);
+		for (const b of wrangler.r2_buckets ?? []) push("bucket", b.binding, b.bucket_name);
+		for (const k of wrangler.kv_namespaces ?? []) push("clave-valor", k.binding, k.id);
 		for (const q of wrangler.queues?.producers ?? []) push("Queue (productor)", q.binding, q.queue);
 		for (const s of wrangler.services ?? []) push("Service", s.binding, s.service);
 		for (const o of wrangler.durable_objects?.bindings ?? [])
-			push("Durable Object", o.name, [o.class_name, o.script_name].filter(Boolean).join(" @ "));
+			push("objeto durable", o.name, [o.class_name, o.script_name].filter(Boolean).join(" @ "));
 		if (wrangler.ai?.binding) push("Workers AI", wrangler.ai.binding, "");
 		for (const b of wrangler.browser ? [wrangler.browser] : []) push("Browser", b.binding, "");
 	}
@@ -672,7 +672,7 @@ function buildBlocks() {
 	// dejaba media docena de líneas en blanco al principio del bloque.
 	const configHeader = [
 		cfg.wrangler?.name ? `**Proyecto Cloudflare:** \`${cfg.wrangler.name}\`` : "",
-		cfg.wrangler?.main ? `**Entrada:** [\`${cfg.wrangler.main}\`](../${cfg.wrangler.main}) (Worker)` : "",
+		cfg.wrangler?.main ? `**Entrada:** [\`${cfg.wrangler.main}\`](../${cfg.wrangler.main}) (script)` : "",
 		cfg.wrangler?.pages_build_output_dir ? `**Salida de build:** \`${cfg.wrangler.pages_build_output_dir}\` (Pages)` : "",
 		cfg.sharedPin ? `**\`@onforge/shared\`:** \`${cfg.sharedPin}\`` : "",
 	].filter(Boolean);

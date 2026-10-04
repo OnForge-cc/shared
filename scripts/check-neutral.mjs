@@ -6,6 +6,7 @@
  *   everywhere → el nombre del proveedor, en cualquier archivo de texto.
  *   customer   → además los nombres de sus productos, en las rutas que ve un
  *                cliente (las lista `customer` en neutral.config.json).
+ *   docs       → los nombres de producto con mayúscula en cualquier `.md`.
  *
  * Pasan los identificadores que impone la herramienta (paquetes, módulos, URLs
  * de API, variables que lee wrangler), las líneas con `neutral:allow-line` y los
@@ -24,6 +25,11 @@ const TEXT = /\.(ts|tsx|js|mjs|cjs|json|md|html|css|sql|toml|ya?ml|txt|xml|svg|e
 const EVERYWHERE = /cloudflare/i;
 const CUSTOMER =
 	/\b(workers?|D1|R2|durable objects?|workerd|wrangler|nodejs_compat|compatibility_(date|flags))\b|workers\.dev|pages\.dev|_cf-custom-hostname/i;
+
+// En la prosa de los .md, los nombres de producto con mayúscula. Distingue
+// mayúsculas a propósito: los comandos (`wrangler d1 …`) y las claves de
+// configuración (`[[r2_buckets]]`) van en minúscula y son de la herramienta.
+const DOCS = /\b(D1|R2|KV|Workers?|Durable Objects?)\b/;
 
 const TOOLCHAIN = [
 	/@cloudflare\/[a-z0-9-]+/gi,
@@ -65,6 +71,7 @@ export function scan(root, config) {
 				for (const token of TOOLCHAIN) text = text.replace(token, "");
 				if (EVERYWHERE.test(text)) hits.push({ file, line: index + 1, rule: "everywhere", text: raw.trim() });
 				else if (isCustomer && CUSTOMER.test(text)) hits.push({ file, line: index + 1, rule: "customer", text: raw.trim() });
+				else if (file.endsWith(".md") && DOCS.test(text)) hits.push({ file, line: index + 1, rule: "docs", text: raw.trim() });
 			});
 	}
 	return hits;
