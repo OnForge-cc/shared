@@ -21,7 +21,7 @@ interface EmailOptions {
 
 /** Lo que el envío necesita de los bindings de un producto, estructuralmente. */
 export interface EmailEnv {
-	CF_ACCOUNT_ID?: string;
+	PROVIDER_ACCOUNT_ID?: string;
 	EMAIL_API_TOKEN?: string;
 	EMAIL_FROM?: string;
 	EMAIL_FROM_NAME?: string;
@@ -34,7 +34,7 @@ interface SendResponse {
 }
 
 export function emailConfigured(env: EmailEnv): boolean {
-	return Boolean(env.CF_ACCOUNT_ID && env.EMAIL_API_TOKEN && env.EMAIL_FROM);
+	return Boolean(env.PROVIDER_ACCOUNT_ID && env.EMAIL_API_TOKEN && env.EMAIL_FROM);
 }
 
 /**
@@ -119,8 +119,8 @@ export interface NotificationEmailInput {
 
 export interface Emailer {
 	/**
-	 * Envía a través de la API REST de Cloudflare Email Sending. Las Pages
-	 * Functions no pueden usar el binding `send_email` de Workers, así que esto
+	 * Envía a través de la API REST de envío de correo del proveedor. Las
+	 * Functions no pueden usar el binding `send_email` del runtime, así que esto
 	 * llama en su lugar al endpoint de ámbito de cuenta con un token de API.
 	 */
 	sendEmail(env: EmailEnv, opts: EmailOptions): Promise<void>;
@@ -319,11 +319,11 @@ export function createEmailer(brand: {
 
 	async function sendEmail(env: EmailEnv, opts: EmailOptions): Promise<void> {
 		if (!emailConfigured(env)) {
-			throw new Error("Email is not configured (CF_ACCOUNT_ID, EMAIL_API_TOKEN, EMAIL_FROM)");
+			throw new Error("Email is not configured (PROVIDER_ACCOUNT_ID, EMAIL_API_TOKEN, EMAIL_FROM)");
 		}
 
 		const res = await fetch(
-			`https://api.cloudflare.com/client/v4/accounts/${env.CF_ACCOUNT_ID}/email/sending/send`,
+			`https://api.cloudflare.com/client/v4/accounts/${env.PROVIDER_ACCOUNT_ID}/email/sending/send`,
 			{
 				method: "POST",
 				headers: {
