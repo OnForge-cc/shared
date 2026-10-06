@@ -559,10 +559,14 @@ export function Alert({ error, children }: { error?: Error | null; children?: Re
 	);
 }
 
-/** Una nota: la letra pequeña que acompaña a una sección, sobre niebla. */
+/**
+ * Una nota: la letra pequeña que acompaña a una sección, sobre un filete y no
+ * en una caja. Dentro de una tarjeta, una caja más sería una tarjeta dentro de
+ * otra; una caja (`StatusBox`) se reserva para un estado que hay que mirar.
+ */
 export function Note({ title, children }: { title?: string; children: ReactNode }) {
 	return (
-		<div className="rounded-[12px] bg-(--sk-ground) px-4 py-3">
+		<div className="border-t border-(--sk-hair) pt-3">
 			{title && <p className="mb-0.5 text-[0.8125rem] font-medium text-(--sk-ink)">{title}</p>}
 			<p className="max-w-[68ch] text-[0.875rem] leading-snug text-(--sk-ink-2)">{children}</p>
 		</div>

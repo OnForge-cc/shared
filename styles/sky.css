@@ -987,10 +987,12 @@
 }
 
 /* anillos y pastillas */
+/* El anillo vacío tiene que verse sobre la tarjeta (≥ 3:1 contra --sk-surface):
+   es el que dice «la ventana cerró», y un anillo invisible dice «nada». */
 .site.sk .ring {
 	width: 0.875rem;
 	height: 0.875rem;
-	border: 1.5px solid #3c4d6b;
+	border: 1.5px solid #6a7fa6;
 	background: transparent;
 }
 .site.sk .ring--filled,
@@ -1353,11 +1355,16 @@
 	background: rgba(7, 12, 24, 0.86);
 	backdrop-filter: blur(12px) saturate(150%);
 }
+/* Los bordes se desvanecen para decir que la fila sigue; el relleno deja sitio
+   al desvanecido para que la primera y la última píldora se lean enteras. */
 .sk .sk-onpage ol {
 	display: flex;
 	gap: 4px;
+	margin-inline: -12px;
+	padding-inline: 12px;
 	overflow-x: auto;
 	scrollbar-width: none;
+	mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 12px), transparent);
 }
 .sk .sk-onpage ol::-webkit-scrollbar {
 	display: none;

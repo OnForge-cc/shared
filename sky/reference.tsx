@@ -40,7 +40,8 @@ export interface RefGroup<B> {
 }
 
 /** El `code` en línea y el enlace de la prosa, para el marcado de cada proyecto. */
-export const INLINE_CODE = "rounded-[6px] bg-(--sk-mist) px-1.5 py-0.5 font-mono text-[0.85em] text-(--sk-ink)";
+// `box-decoration-break: clone`: un identificador que se parte en dos líneas conserva su relleno en las dos.
+export const INLINE_CODE = "rounded-[6px] bg-(--sk-mist) px-1.5 py-0.5 font-mono text-[0.85em] text-(--sk-ink) [box-decoration-break:clone]";
 export const INLINE_LINK = "text-(--sk-accent) underline underline-offset-4 decoration-1 transition-colors hover:text-(--sk-ink)";
 
 /** Un bloque de los que comparten los dos documentos. `inline` resuelve el marcado de cada proyecto. */
@@ -294,6 +295,17 @@ function SideNav<B extends { kind: string }>({
 	activeSectionId?: string;
 	activeAnchor: string;
 }) {
+	// El riel es pegajoso y se desplaza por su cuenta: la sección en la que se
+	// está tiene que seguir a la vista dentro de él, sin mover la página.
+	const rail = useRef<HTMLDivElement>(null);
+	useEffect(() => {
+		const box = rail.current;
+		const current = box?.querySelector<HTMLElement>("a[aria-current]");
+		if (!box || !current) return;
+		const delta = current.getBoundingClientRect().top - box.getBoundingClientRect().top;
+		if (delta < 0 || delta > box.clientHeight - 48) box.scrollTo({ top: box.scrollTop + delta - 24, behavior: "smooth" });
+	}, [activeSectionId]);
+
 	const needle = query.trim().toLowerCase();
 	const shown = groups
 		.map((group) => ({
@@ -310,7 +322,7 @@ function SideNav<B extends { kind: string }>({
 
 	return (
 		<nav className="hidden lg:block" aria-label={label}>
-			<div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto pb-6 pr-1">
+			<div ref={rail} className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto pb-6 pr-1">
 				<div className="relative mb-6">
 					<Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-(--sk-ink-3)" strokeWidth={1.75} aria-hidden="true" />
 					<input
