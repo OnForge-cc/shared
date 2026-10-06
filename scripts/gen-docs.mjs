@@ -527,7 +527,7 @@ function objectLikeAfter(src, from) {
  * carpetas en la raíz (`ui/`, `worker/`, `lib/`…), así que cuando no hay `src/`
  * se recorren esas.
  */
-const ROOT_SOURCE_DIRS = ["components", "hooks", "lib", "ui", "worker"];
+const ROOT_SOURCE_DIRS = ["components", "hooks", "lib", "sky", "ui", "worker"];
 
 /**
  * ¿Es este archivo un diccionario de traducción que no dice nada propio?

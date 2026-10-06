@@ -17,22 +17,28 @@ runtime son `peerDependencies`.
 <!-- BEGIN generated:modules -->
 <!-- No edites aquí: lo reescribe `npm run docs`. -->
 
-Módulos de las carpetas publicadas (39), con la primera línea de su comentario de cabecera.
+Módulos de las carpetas publicadas (45), con la primera línea de su comentario de cabecera.
 
 | Archivo | Qué hace |
 | --- | --- |
 | [`components/confirm-delete-modal.tsx`](../components/confirm-delete-modal.tsx) | «¿Seguro?» antes de un borrado, igual en toda la plataforma. |
-| [`components/console-kit.tsx`](../components/console-kit.tsx) | Las piezas de los paneles, en el vocabulario del mapa. |
-| [`components/console.tsx`](../components/console.tsx) | Las piezas de página que usa toda la plataforma (`PageHeader`, `StatGrid`, `StatTile`, `PanelHeader`, `EmptyState`, `ConsoleTag`), redibujadas en el mundo del mapa de… |
 | [`components/form-modal.tsx`](../components/form-modal.tsx) | El envoltorio de cualquier formulario en diálogo: título, descripción y hueco. |
-| [`components/map.tsx`](../components/map.tsx) | Las piezas pequeñas del mapa que comparten las apps de OnForge. |
 | [`components/theme-provider.tsx`](../components/theme-provider.tsx) | El mundo del mapa se lee a la luz del día: no hay tema oscuro en el sitio, en la puerta, en las consolas ni en las apps (decidido el 2026-09-29). |
-| [`hooks/map.ts`](../hooks/map.ts) | Los hooks de las piezas de consola (`components/console-kit.tsx`), el reloj del horario, el aviso que se apaga solo, el cierre de un panel flotante, el salto a una… |
 | [`lib/crud-api.ts`](../lib/crud-api.ts) | El cliente CRUD que se repetía en cada feature, escrito una vez. |
 | [`lib/crud-hooks.ts`](../lib/crud-hooks.ts) | Los hooks de React Query que van encima de `crud-api.ts`. |
 | [`lib/initials.ts`](../lib/initials.ts) | Dos letras en lugar de alguien que todavía no tiene avatar. |
+| [`lib/platform-client.ts`](../lib/platform-client.ts) | Hablar con el control plane desde una consola que vive en otro origen (admin., partners., developers. |
 | [`lib/use-copy.ts`](../lib/use-copy.ts) | Copiar, hecho una sola vez para todo el proyecto: la misma implementación que partners y developers, la que usa `CopyTicket` en `console.tsx`. |
 | [`lib/utils.ts`](../lib/utils.ts) | `cn` — juntar clases de Tailwind sin que se peleen entre ellas. |
+| [`lib/vite-env.d.ts`](../lib/vite-env.d.ts) | Las variables de build que lee el paquete (`import.meta.env`). |
+| [`sky/console-frame.tsx`](../sky/console-frame.tsx) | El marco de consola de admin, partners y developers, en el mundo «Clear Sky» de noche: la forma de una app de trabajo, la misma que la consola de onforge. |
+| [`sky/console.tsx`](../sky/console.tsx) | Las piezas de la consola, en el mundo «Clear Sky» de noche (2026-10-05). |
+| [`sky/hooks.ts`](../sky/hooks.ts) | Hooks de scroll y de montaje contra los que se animan las páginas de Clear Sky, y los tres que usan las piezas de consola de `console.tsx` (`useFlash`, `useDismiss`,… |
+| [`sky/kit.tsx`](../sky/kit.tsx) | Las piezas del mundo de OnForge («Clear Sky» de noche): la marca, la píldora y la flecha. |
+| [`sky/night.ts`](../sky/night.ts) | El documento entero es de noche mientras se ve una página de Clear Sky: el fondo de `<html>` (lo que asoma en el rebote del scroll) y el color de la barra del navegador. |
+| [`sky/page.tsx`](../sky/page.tsx) | Las piezas de página del mundo de OnForge («Clear Sky» de noche), compartidas por el sitio de onforge y las páginas públicas de partners y developers: la cabecera de… |
+| [`sky/platform-client.test.ts`](../sky/platform-client.test.ts) | El cliente de plataforma: la URL de entrada, las credenciales en cada llamada, la frase del servidor y un solo refresh. |
+| [`sky/sky-canvas.tsx`](../sky/sky-canvas.tsx) | El cielo de OnForge: un solo shader WebGL2, sin dependencias. |
 | [`ui/alert-dialog.tsx`](../ui/alert-dialog.tsx) | El diálogo de consecuencias: el mismo papel que `Dialog`, pero no se cierra al pulsar fuera y el foco empieza en «Cancel», el lado que no hace nada. |
 | [`ui/avatar.tsx`](../ui/avatar.tsx) | La cara de alguien es su monograma: su foto, o sus iniciales en el corte condensado, dentro de un cuadrado con el trazo del mundo. |
 | [`ui/badge.tsx`](../ui/badge.tsx) | El sello: un estado impreso en una caja con el trazo del mundo. |
@@ -91,6 +97,7 @@ _Sin cron propio._
 | Script | Comando |
 | --- | --- |
 | `npm run check:neutral` | `node scripts/check-neutral.mjs` |
+| `npm run test` | `vitest run` |
 | `npm run typecheck` | `tsc -p tsconfig.ui.json --noEmit && tsc -p tsconfig.worker.json --noEmit` |
 | `npm run docs` | `node scripts/gen-docs.mjs` |
 | `npm run docs:check` | `node scripts/gen-docs.mjs --check` |

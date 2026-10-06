@@ -1,8 +1,8 @@
 /*
  * El mundo visual del sitio público: el mapa de red.
  *
- * Las apps son líneas de color sobre papel blanco; cada persona es un
- * intercambiador y un solo billete las recorre. Todo lo que aquí se
+ * Seis apps son seis líneas de color sobre papel blanco; cada persona es un
+ * intercambiador y un solo billete recorre todas las líneas. Todo lo que aquí se
  * declara vive bajo `.site`, así que la consola y las pantallas de auth (que
  * siguen el tema del sistema y los tokens de shadcn) no lo heredan, y el sitio
  * no hereda el modo oscuro de la consola: un mapa se lee a la luz del día.
@@ -60,6 +60,12 @@
 	--input: var(--rule);
 	--ring: var(--ink);
 	--destructive: #b3261e;
+
+	/* Las dos excepciones del 2026-10-02: un verde sólo para «este despliegue
+	   sirve tráfico» y una monoespaciada sólo para lo que se lee o se copia
+	   carácter a carácter (logs, registros DNS, comandos, errores, bindings). */
+	--live: #1b7a3d;
+	--font-code: "Fira Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
 
 	color-scheme: light;
 	background: var(--paper);
@@ -337,7 +343,7 @@
 	border-top: 1px solid var(--rule);
 }
 
-/* El eje: la línea de la plataforma recorre toda la página por el margen izquierdo, y
+/* El eje: la línea de OnForge recorre toda la página por el margen izquierdo, y
    cada parada de sección es un tick que la cruza. Sólo en pantallas anchas,
    donde el margen existe; los tableros de tinta (terminal, pie) la cubren. */
 .site .axis {
@@ -765,6 +771,11 @@
 	border-color: var(--destructive);
 	color: var(--destructive);
 }
+.site .stamp--live {
+	background: var(--live);
+	border-color: var(--live);
+	color: var(--paper);
+}
 
 /* La placa como título de panel: la misma tinta que `.plate`, pero en bloque,
    para que pueda ser un botón (el selector de workspace) sin partirse. */
@@ -852,7 +863,8 @@
    cabecera. Es la única pieza del panel que se mueve sola. */
 .site .calling-at {
 	position: sticky;
-	top: 5.5rem;
+	/* la franja (4rem) más su filete de tinta (0.25rem) */
+	top: 4.25rem;
 	z-index: 40;
 	background: var(--paper);
 	border-top: var(--stroke) solid var(--ink);
@@ -1163,8 +1175,11 @@
 	font-weight: 700;
 }
 
-/* ══ sólo la consola ═════════════════════════════════════════════
-   Lo que tiene la consola: el riel de páginas del workspace y de la cuenta. */
+/* ══ sólo la consola de la plataforma ══════════════════════════════════════
+   Lo que tiene la consola de la plataforma y no tendrán los paneles de partners
+   y developers:
+   el riel de páginas del workspace y de la cuenta, el intercambiador de
+   accesos y la presencia como anillo. */
 
 /* El riel de páginas: el segundo nivel de la franja de rutas. Los mismos
    destinos en negrita con la barra de 3px bajo el actual, sobre un filete
@@ -1175,6 +1190,16 @@
 	overflow-x: auto;
 	scrollbar-width: none;
 	border-bottom: 1px solid var(--rule);
+}
+/* Quedan destinos detrás del borde derecho: el borde se funde para decirlo. */
+.site .page-rail.has-more {
+	mask-image: linear-gradient(to right, #000 85%, transparent);
+}
+.site .page-rail.has-less {
+	mask-image: linear-gradient(to left, #000 85%, transparent);
+}
+.site .page-rail.has-more.has-less {
+	mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);
 }
 .site .page-rail::-webkit-scrollbar {
 	display: none;
@@ -1204,6 +1229,47 @@
 	bottom: -1px;
 	height: var(--stroke);
 	background: var(--ink);
+}
+
+/* El intercambiador de accesos: las seis líneas, en su orden de siempre, cada
+   una un tramo de su color con un anillo encima; sellado donde la persona
+   tiene la app. Una app que el workspace no tiene va al 40%, sin anillo. */
+.site .access {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.2rem;
+	vertical-align: middle;
+}
+.site .access-cell {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.6rem;
+	height: 1.25rem;
+}
+.site .access-cell::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 50%;
+	height: var(--line);
+	transform: translateY(-50%);
+	background: var(--swatch, var(--ink));
+}
+.site .access-cell.is-off::before {
+	opacity: 0.4;
+}
+.site .access-cell .ring {
+	position: relative;
+	width: 1rem;
+	height: 1rem;
+}
+
+/* la presencia: un anillo y su palabra; nunca sólo un color */
+.site .presence-ring.is-offline {
+	opacity: 0.45;
 }
 
 /* ── entradas: una sola familia de movimiento, desde un estado ya visible ── */
@@ -1262,5 +1328,122 @@
 @media (min-width: 64rem) {
 	.site .wrap {
 		padding-inline: 3rem;
+	}
+}
+
+/* ══ la consola de apps ════════════════════════════════════════════════════
+   El Logbook: la fila de estado fija, el log en vivo y la letra de código. */
+
+.site .ring--live {
+	background: var(--live);
+	border-color: var(--live);
+}
+
+.site .code {
+	font-family: var(--font-code);
+	font-size: 0.875rem;
+	line-height: 1.45;
+	letter-spacing: 0;
+	font-feature-settings: "kern" 1;
+}
+
+/* Una letra del sello que se reimprime: gira desde el canto, una tras otra. */
+.site .flap {
+	display: inline-block;
+	transform-origin: 50% 60%;
+	animation: flap calc(var(--clock) / 40) cubic-bezier(0.16, 1, 0.3, 1) both;
+	animation-delay: calc(var(--i, 0) * var(--clock) / 240);
+}
+@keyframes flap {
+	from {
+		transform: rotateX(90deg);
+		opacity: 0.001;
+	}
+	to {
+		transform: none;
+		opacity: 1;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.site .flap {
+		animation: none;
+	}
+}
+
+/* La fila que dice qué sirve, pegada bajo la franja como la tira «calling at». */
+.site .status-row {
+	position: sticky;
+	top: 5.5rem;
+	z-index: 30;
+	background: var(--paper);
+	border-top: var(--stroke) solid var(--ink);
+	border-bottom: 1px solid var(--rule);
+}
+
+.site .logbook {
+	border: var(--stroke) solid var(--ink);
+}
+.site .logbook-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	gap: 0.75rem;
+	padding: 0.75rem;
+	border-bottom: var(--stroke) solid var(--ink);
+}
+.site .logbook-body {
+	height: min(70vh, 40rem);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+.site .log-row {
+	display: grid;
+	grid-template-columns: 7.5rem 3.75rem minmax(0, 1fr);
+	gap: 0 0.75rem;
+	padding: 0.2rem 0.75rem;
+	border-bottom: 1px solid var(--rule-2);
+}
+.site .log-row:hover {
+	background: var(--paper-2);
+}
+/* El id de invocación de una línea del histórico: al final del mensaje, en su línea. */
+.site .log-inv {
+	display: inline;
+	margin-left: 0.75rem;
+}
+.site .log-inv summary {
+	display: inline;
+	list-style: none;
+}
+.site .log-inv summary::-webkit-details-marker {
+	display: none;
+}
+.site .log-inv summary::before {
+	content: "+ ";
+}
+.site .log-inv[open] summary::before {
+	content: "− ";
+}
+.site .log-inv[open] .code {
+	margin-left: 0.5rem;
+}
+/* Los eventos de un despliegue: hora en segundos y el paso en palabra, más ancho que un nivel. */
+.site .log-row--steps {
+	grid-template-columns: 5.5rem 6.5rem minmax(0, 1fr);
+}
+.site .log-row .log-msg {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+.site .log-row--error .log-level {
+	color: var(--destructive);
+	font-weight: 700;
+}
+@media (max-width: 47.9rem) {
+	.site .log-row {
+		grid-template-columns: auto 1fr;
+	}
+	.site .log-row .log-msg {
+		grid-column: 1 / -1;
 	}
 }
