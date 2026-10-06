@@ -10,8 +10,8 @@ lo consume.
 `@cloudflare/workers-types`. Nunca se importa cruzando esa frontera (hay dos
 `tsconfig` por eso).
 
-El pin es a un **tag** de git, no a master (onforge en `v1.0.0`; las tres
-consolas del subproyecto 4 en `v1.2.0`, por crear). Las dependencias de runtime
+El pin es a un **tag** de git, no a master (`v1.2.0`, por crear, en los cuatro
+consumidores: onforge y las tres consolas del subproyecto 4). Las dependencias de runtime
 son `peerDependencies`; cada consumidor las deduplica (`dedupe` en su
 `vite.config.ts`) para que no haya dos React.
 
