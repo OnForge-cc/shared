@@ -20,9 +20,16 @@
  * (`signOutAndGo`) en vez de navegar; así ninguna consola necesita su propia
  * ruta de salida.
  */
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
 import { Link, useRouterState, type LinkProps } from "@tanstack/react-router";
-import { ArrowUpRight, ChevronDown, ChevronRight, Menu, X, type LucideIcon } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ChevronRight, Menu, X } from "lucide-react";
+
+/**
+ * Un icono de lucide, tipado por su forma y no por la clase del paquete: cada
+ * consola trae su propia copia de lucide-react y la de este paquete es otra
+ * instancia para TypeScript, aunque el bundle deduplique las dos en una.
+ */
+export type IconComponent = ComponentType<{ className?: string; strokeWidth?: number; "aria-hidden"?: boolean | "true" | "false" }>;
 import { signOutAndGo } from "../lib/platform-client";
 import { Monogram } from "./console";
 import { useDismiss } from "./hooks";
@@ -37,7 +44,7 @@ export interface FrameCrumb {
 export interface FrameNavItem {
 	to: LinkProps["to"];
 	label: string;
-	icon: LucideIcon;
+	icon: IconComponent;
 	/** Activo sólo en la ruta exacta (la portada, que sería prefijo de todas). */
 	exact?: boolean;
 	/** Un estado con su palabra junto al destino: «3 past due». */
@@ -47,7 +54,7 @@ export interface FrameNavItem {
 export interface FrameLink {
 	href: string;
 	label: string;
-	icon: LucideIcon;
+	icon: IconComponent;
 }
 
 export interface FrameAccount {
