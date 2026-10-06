@@ -1,17 +1,18 @@
 /**
- * Las piezas de los paneles, en el vocabulario del mapa.
+ * Las piezas de la consola, en el mundo «Clear Sky» de noche (2026-10-05).
  *
- * Los paneles de la consola son
- * pliegos: una sola hoja que se lee de arriba abajo, cada recado una parada en
- * el eje de la página, cada valor editable donde está impreso. Este archivo es
- * la única copia (como el bloque de consola de `site.css`). El sello de estado,
- * la tira «calling at», la parada de consola, los campos con el trazo del
- * mundo, la fila de guardar con su aviso reservado, el billete de copiar, el
- * diálogo de papel, el menú de acciones y el selector de workspace.
+ * Nació de la copia de OnDesk (la de sus cuatro consolas en «Clear Sky») con lo
+ * propio de OnForge encima: el sello `live`. Desde el subproyecto 4 vive en
+ * `@onforge/shared/sky` y la pintan onforge, admin, partners y developers (con
+ * el bloque de consola al final de `styles/sky.css`). La API es la de cuando era un pliego del mapa de
+ * red, así que ninguna vista tuvo que cambiar para mudarse: la sección es
+ * ahora una tarjeta que flota sobre la noche, el sello una píldora con su
+ * palabra, el billete una píldora, el diálogo un panel sobre un velo oscuro.
  *
  * Reglas que cumplen todas: el mensaje de un campo tiene su sitio antes de
- * aparecer; un estado se imprime con una palabra, nunca sólo con un color;
- * nada tiene radio ni sombra; lo único que se mueve solo es la tira.
+ * aparecer; un estado se dice con una palabra, nunca sólo con un color; la
+ * elevación es sombra, nunca borde y sombra a la vez; el color de una app sólo
+ * vive en su baldosa.
  */
 import {
 	Fragment,
@@ -24,17 +25,18 @@ import {
 	type SelectHTMLAttributes,
 	type TextareaHTMLAttributes,
 } from "react";
-import { Check as CheckIcon, ChevronDown, Copy, ExternalLink, MoreHorizontal, X, type LucideIcon } from "lucide-react";
+import { Check as CheckIcon, ChevronDown, CircleAlert, Copy, ExternalLink, MoreHorizontal, X, type LucideIcon } from "lucide-react";
 import { useCopy } from "../lib/use-copy";
-import { useDismiss } from "../hooks/map";
+import { useDismiss } from "./hooks";
 
-// ─── la parada de consola ────────────────────────────────────────────────────
+const ERROR_TEXT = "text-[#f6a49c]";
+
+// ─── la sección ──────────────────────────────────────────────────────────────
 
 /**
- * Una parada del pliego: el filete grueso con la marca que cruza el eje, la
- * información de estación a la derecha (el dato vivo de la sección) y el
- * título con su única acción. Más baja que la `Stop` de las páginas públicas:
- * en un panel se trabaja, y un titular de 3rem en cada sección es ruido.
+ * Una sección del panel: una tarjeta con su título, el dato vivo a la
+ * derecha (en voz pequeña) y su única acción. `scroll-mt` deja sitio a la barra
+ * superior y a la tira «en esta página» cuando se llega por un ancla.
  */
 export function Section({
 	id,
@@ -45,39 +47,36 @@ export function Section({
 }: {
 	id: string;
 	title: ReactNode;
-	/** El dato vivo de la sección, en la meta de estación: «12 attributed · 4 earning». */
+	/** El dato vivo de la sección: «12 attributed · 4 earning». */
 	meta?: ReactNode;
 	/** El único control que cambia lo que enseña la sección («Change», un enlace a la regla). */
 	action?: ReactNode;
 	children: ReactNode;
 }) {
 	return (
-		<section id={id} className="rule scroll-mt-40 pt-4" aria-labelledby={`${id}-title`}>
-			<div className="flex min-h-7 items-center justify-between gap-6">
-				<span className="stop-mark" aria-hidden="true" />
-				{meta && <span className="t-tab text-right text-(--ink-2)">{meta}</span>}
-			</div>
-			<div className="mt-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-				<h2 id={`${id}-title`} className="t-h2 max-w-3xl text-[1.5rem] md:text-[1.625rem]">
-					{title}
-				</h2>
+		<section id={id} className="sk-card scroll-mt-36 p-5 sm:p-7" aria-labelledby={`${id}-title`}>
+			<div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
+				<div className="min-w-0">
+					<h2 id={`${id}-title`} className="sk-h3 max-w-3xl text-[1.125rem] sm:text-[1.25rem]">
+						{title}
+					</h2>
+					{meta && <p className="sk-small mt-1">{meta}</p>}
+				</div>
 				{action && <div className="flex flex-wrap items-center gap-2">{action}</div>}
 			</div>
-			<div className="mt-6">{children}</div>
+			<div className="mt-5">{children}</div>
 		</section>
 	);
 }
 
-// ─── la tira «calling at» ────────────────────────────────────────────────────
+// ─── la tira «en esta página» ────────────────────────────────────────────────
 
 /**
- * La línea de paradas del pliego, pegada bajo la cabecera: un anillo y un
- * rótulo por parada. Los anillos se van llenando a medida que se baja por la
- * hoja, como las paradas ya servidas de una línea, y la parada que se está
- * leyendo lleva además la barra de tinta de la franja de rutas debajo.
- * Gana la parada cuyo filete ha pasado ya bajo la tira — la misma regla que
- * el riel de la documentación — y al final de la página, la última aunque sea
- * corta. En un teléfono la tira se desplaza de lado y sigue a la parada actual.
+ * Las secciones de una página larga, pegadas bajo la barra superior: un enlace
+ * por sección, con un punto que se llena al pasarla y una raya del acento bajo
+ * la que se está leyendo. Gana la sección cuyo borde ha pasado ya bajo la tira
+ * y, al final de la página, la última aunque sea corta. En un teléfono la tira
+ * se desplaza de lado y sigue a la actual.
  */
 export function CallingAt({ stops }: { stops: { id: string; label: string }[] }) {
 	const [current, setCurrent] = useState(stops[0]?.id);
@@ -88,8 +87,8 @@ export function CallingAt({ stops }: { stops: { id: string; label: string }[] })
 		let frame = 0;
 		const measure = () => {
 			frame = 0;
-			// la cabecera (5.5rem) más la tira (unos 3rem) más un margen
-			const offset = 170;
+			// la barra superior (4rem) más la tira (unos 3rem) más un margen
+			const offset = 150;
 			let active = stops[0]?.id;
 			for (const stop of stops) {
 				const el = document.getElementById(stop.id);
@@ -110,11 +109,11 @@ export function CallingAt({ stops }: { stops: { id: string; label: string }[] })
 			window.removeEventListener("resize", onScroll);
 			if (frame) cancelAnimationFrame(frame);
 		};
-		// `key` resume las paradas; `stops` cambia de identidad en cada render.
+		// `key` resume las secciones; `stops` cambia de identidad en cada render.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [key]);
 
-	// En una tira más ancha que la pantalla, la parada actual siempre a la vista.
+	// En una tira más ancha que la pantalla, la sección actual siempre a la vista.
 	useEffect(() => {
 		const list = listRef.current;
 		const item = list?.querySelector<HTMLElement>(`[data-stop="${current}"]`);
@@ -122,27 +121,18 @@ export function CallingAt({ stops }: { stops: { id: string; label: string }[] })
 		const outside = item.offsetLeft < list.scrollLeft || item.offsetLeft + item.offsetWidth > list.scrollLeft + list.clientWidth;
 		if (!outside) return;
 		const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-		// el margen interior de la tira es el del canal de la página
-		const gutter = parseFloat(getComputedStyle(list).paddingLeft) || 0;
-		list.scrollTo({ left: Math.max(0, item.offsetLeft - gutter), behavior: still ? "auto" : "smooth" });
+		list.scrollTo({ left: Math.max(0, item.offsetLeft - 8), behavior: still ? "auto" : "smooth" });
 	}, [current]);
 
 	const currentIndex = stops.findIndex((stop) => stop.id === current);
 
 	return (
-		<nav className="calling-at" aria-label="On this page">
-			<ol ref={listRef} className="line-stops relative">
-				<li className="t-tab hidden shrink-0 pr-4 text-(--ink-2) sm:block" aria-hidden="true">
-					Calling at
-				</li>
+		<nav className="sk-onpage" aria-label="On this page">
+			<ol ref={listRef}>
 				{stops.map((stop, i) => (
-					<li
-						key={stop.id}
-						data-stop={stop.id}
-						className={`flex shrink-0 items-center ${i < currentIndex ? "is-done" : ""}`}>
-						{i > 0 && <span className="seg" aria-hidden="true" />}
+					<li key={stop.id} data-stop={stop.id} className={i < currentIndex ? "is-done" : undefined}>
 						<a href={`#${stop.id}`} aria-current={current === stop.id ? "location" : undefined}>
-							<span className="ring" aria-hidden="true" />
+							<span className="sk-onpage-dot" aria-hidden="true" />
 							{stop.label}
 						</a>
 					</li>
@@ -155,10 +145,10 @@ export function CallingAt({ stops }: { stops: { id: string; label: string }[] })
 // ─── la cabecera del panel ───────────────────────────────────────────────────
 
 /**
- * El bloque de identidad de un panel: marca, título en placa, sellos, línea de
- * contexto. Con `pinActions` las acciones no bajan de fila en un teléfono: se
- * quedan arriba a la derecha y el bloque de identidad cede el ancho. Es para
- * un solo billete cuadrado (el menú ⋯); dos billetes con palabra sí bajan.
+ * El bloque de identidad de un panel: la cara (logo o iniciales), el título,
+ * sus estados, una línea de contexto y las acciones. Con `pinActions` las
+ * acciones no bajan de fila en un teléfono: se quedan arriba a la derecha (es
+ * para un solo botón redondo, el menú ⋯).
  */
 export function Masthead({
 	mark,
@@ -172,7 +162,7 @@ export function Masthead({
 	mark: ReactNode;
 	title: ReactNode;
 	stamps?: ReactNode;
-	/** Una línea condensada bajo el título: el slug, el client ID. */
+	/** Una línea pequeña bajo el título: el slug, el client ID. */
 	sub?: ReactNode;
 	actions?: ReactNode;
 	pinActions?: boolean;
@@ -180,12 +170,9 @@ export function Masthead({
 	children?: ReactNode;
 }) {
 	return (
-		<header className="flex flex-col gap-4">
-			{/* Con `pinActions` el billete va fijo arriba a la derecha y sólo la fila
-			    de la placa le deja sitio (el `pr-12`): la línea del client ID, debajo,
-			    corre a todo lo ancho y no se parte por el billete. */}
+		<header className="flex flex-col gap-5">
 			<div className={`flex items-start justify-between gap-4 ${pinActions ? "relative" : "flex-wrap"}`}>
-				<div className={`flex min-w-0 items-start gap-4 ${pinActions ? "flex-1" : ""}`}>
+				<div className={`flex min-w-0 items-center gap-4 ${pinActions ? "flex-1" : ""}`}>
 					{mark}
 					<div className="min-w-0 flex-1">
 						<div className={`flex flex-wrap items-center gap-x-3 gap-y-2 ${pinActions ? "pr-12" : ""}`}>
@@ -194,42 +181,32 @@ export function Masthead({
 						</div>
 						{/* `overflow-wrap: anywhere` y no `break-all`: parte un client ID que no
 						    cabe, pero no parte «registered» por la mitad. */}
-						{sub && <p className="t-cond mt-2 text-[0.95rem] [overflow-wrap:anywhere] text-(--ink-2)">{sub}</p>}
+						{sub && <p className="sk-small mt-1 [overflow-wrap:anywhere]">{sub}</p>}
 					</div>
 				</div>
-				{actions && (
-					<div className={`flex flex-wrap items-center gap-2 ${pinActions ? "absolute top-0 right-0" : ""}`}>{actions}</div>
-				)}
+				{actions && <div className={`flex flex-wrap items-center gap-2 ${pinActions ? "absolute right-0 top-0" : ""}`}>{actions}</div>}
 			</div>
 			{children}
 		</header>
 	);
 }
 
-/**
- * El título de un panel en su placa, cuando no es un selector. `min-w-0`: en
- * una fila que deja sitio a un billete, la placa se acorta con puntos
- * suspensivos en vez de montarse sobre él.
- */
+/** El título de un panel cuando no es un selector. `min-w-0`: se acorta con puntos suspensivos antes que montarse sobre un botón. */
 export function PlateTitle({ children }: { children: ReactNode }) {
 	return (
-		<h1 className="t-display min-w-0 max-w-full text-[1.75rem] leading-none md:text-[2rem]">
-			<span className="plate-block">
-				{/* En un teléfono el nombre parte línea dentro de la placa; desde 640px,
-				    donde cabe, se acorta con puntos suspensivos si hace falta. */}
-				<span className="min-w-0 sm:truncate">{children}</span>
-			</span>
+		<h1 className="sk-h2 min-w-0 max-w-full text-[1.625rem] md:text-[1.875rem]">
+			{/* En un teléfono el nombre parte línea; desde 640px se acorta si hace falta. */}
+			<span className="block min-w-0 sm:truncate">{children}</span>
 		</h1>
 	);
 }
 
 /**
- * El nombre del workspace en su placa, que es también el selector: el
- * workspace es el tema de todo lo que hay debajo, no un filtro sobre ello. Con
- * un solo workspace es una placa quieta. El panel que abre marca el actual con
- * el anillo relleno, deja a quien llama poner un sello por fila (PARTNER) y
- * acaba en la consola, donde se administran (`manageHref`); la propia consola
- * pone ahí su fila («New workspace») con `manage`.
+ * El nombre del workspace, que es también el selector: el workspace es el tema
+ * de todo lo de debajo, no un filtro. Con uno solo es un título quieto. El menú
+ * marca el actual, deja a quien llama poner un estado por fila y acaba en la
+ * consola de la plataforma (`manageHref`) o en la fila propia de quien llama
+ * (`manage`).
  */
 export function WorkspacePlate<T extends { id: string; name: string }>({
 	current,
@@ -244,7 +221,7 @@ export function WorkspacePlate<T extends { id: string; name: string }>({
 	onChoose: (id: string) => void;
 	badge?: (workspace: T) => ReactNode;
 	manageHref?: string;
-	/** La última fila del panel, en lugar del enlace a la consola: un `role="menuitem"`. */
+	/** La última fila del menú, en lugar del enlace a la consola: un `role="menuitem"`. */
 	manage?: ReactNode;
 }) {
 	const [open, setOpen] = useState(false);
@@ -255,26 +232,27 @@ export function WorkspacePlate<T extends { id: string; name: string }>({
 	if (all.length <= 1) return <PlateTitle>{current.name}</PlateTitle>;
 
 	return (
-		<div ref={box} className="relative min-w-0">
-			<h1 className="t-display text-[1.75rem] leading-none md:text-[2rem]">
+		<div ref={box} className="relative min-w-0 max-w-full">
+			<h1 className="sk-h2 text-[1.625rem] md:text-[1.875rem]">
 				<button
 					ref={trigger}
 					type="button"
-					className="plate-block"
+					className="-ml-2 inline-flex items-center gap-2 rounded-[12px] px-2 py-0.5 text-left transition-colors hover:bg-(--sk-mist)"
 					aria-haspopup="menu"
 					aria-expanded={open}
 					aria-label={`Switch workspace, currently ${current.name}`}
 					onClick={() => setOpen((v) => !v)}>
-					<span className="truncate">{current.name}</span>
+					<span className="max-w-[58vw] truncate sm:max-w-[34rem]">{current.name}</span>
 					<ChevronDown
-						className={`size-5 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+						className={`size-5 shrink-0 text-(--sk-ink-3) transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+						strokeWidth={1.75}
 						aria-hidden="true"
 					/>
 				</button>
 			</h1>
 			{open && (
-				<div role="menu" aria-label="Workspaces" className="menu-panel top-full left-0 mt-2 w-80 max-w-[calc(100vw-2rem)]">
-					<p className="t-tab px-4 pt-3 pb-1.5 text-(--ink-2)">Workspaces</p>
+				<div role="menu" aria-label="Workspaces" className="menu-panel left-0 top-full mt-2 w-80 max-w-[calc(100vw-2rem)]">
+					<p className="sk-small px-3 pb-1 pt-2 font-medium">Workspaces</p>
 					{all.map((workspace) => (
 						<button
 							key={workspace.id}
@@ -285,17 +263,18 @@ export function WorkspacePlate<T extends { id: string; name: string }>({
 								onChoose(workspace.id);
 								setOpen(false);
 							}}>
-							<span className={`ring ${workspace.id === current.id ? "ring--filled" : ""}`} aria-hidden="true" />
+							<Monogram name={workspace.name} size="xs" />
 							<span className="min-w-0 flex-1 truncate">{workspace.name}</span>
 							{badge?.(workspace)}
+							{workspace.id === current.id && <CheckIcon className="size-4 shrink-0 text-(--sk-accent)" strokeWidth={2} aria-hidden="true" />}
 						</button>
 					))}
-					{(manage || manageHref) && <div className="rule-thin" />}
+					{(manage || manageHref) && <div className="mx-2 my-1 border-t border-(--sk-hair)" />}
 					{manage ??
 						(manageHref && (
 							<a role="menuitem" href={manageHref}>
 								Manage in the console
-								<ExternalLink className="ml-auto size-3.5 text-(--ink-2)" aria-hidden="true" />
+								<ExternalLink className="ml-auto size-3.5 text-(--sk-ink-3)" strokeWidth={1.75} aria-hidden="true" />
 							</a>
 						))}
 				</div>
@@ -304,16 +283,21 @@ export function WorkspacePlate<T extends { id: string; name: string }>({
 	);
 }
 
-/** La cara de un workspace o de una aplicación: su logo, o sus iniciales en un cuadrado con el trazo del mundo. */
-export function Monogram({ name, logoUrl, size = "md" }: { name: string; logoUrl?: string | null; size?: "sm" | "md" | "lg" }) {
-	const box = size === "lg" ? "size-14 text-[1.05rem]" : size === "sm" ? "size-9 text-[0.8rem]" : "size-11 text-[0.9rem]";
+/** La cara de un workspace o de una aplicación: su logo, o sus iniciales en un cuadrado redondeado de niebla. */
+export function Monogram({ name, logoUrl, size = "md" }: { name: string; logoUrl?: string | null; size?: "xs" | "sm" | "md" | "lg" }) {
+	const box =
+		size === "lg"
+			? "size-14 rounded-[16px] text-[1rem]"
+			: size === "sm"
+				? "size-9 rounded-[10px] text-[0.75rem]"
+				: size === "xs"
+					? "size-6 rounded-[7px] text-[0.625rem]"
+					: "size-11 rounded-[12px] text-[0.8125rem]";
 	if (logoUrl) {
-		return <img src={logoUrl} alt="" className={`${box} shrink-0 border-[length:var(--stroke)] border-(--ink) object-cover`} />;
+		return <img src={logoUrl} alt="" className={`${box} shrink-0 object-cover shadow-(--sk-shadow-1)`} />;
 	}
 	return (
-		<span
-			aria-hidden="true"
-			className={`${box} t-cond inline-flex shrink-0 items-center justify-center border-[length:var(--stroke)] border-(--ink) bg-(--paper) font-bold`}>
+		<span aria-hidden="true" className={`${box} inline-flex shrink-0 items-center justify-center bg-(--sk-haze) font-semibold text-(--sk-ink-2)`}>
 			{markOf(name)}
 		</span>
 	);
@@ -337,8 +321,7 @@ function markOf(name: string): string {
 /**
  * Un valor largo (una URL, un URI de vuelta) que sólo se parte por donde se
  * lee: después de una `/` que no va seguida de otra, y después de `?`, `&` y
- * `=`. El `overflow-wrap: anywhere` de la celda queda para un tramo que ni así
- * cabe; el valor copiado sigue siendo el texto entero, sin los `<wbr>`.
+ * `=`. El valor copiado sigue siendo el texto entero, sin los `<wbr>`.
  */
 export function Breakable({ text }: { text: string }) {
 	const parts = text.split(/(?<=\/)(?!\/)|(?<=[?&=])/);
@@ -354,9 +337,13 @@ export function Breakable({ text }: { text: string }) {
 	);
 }
 
-/** Un estado impreso: sólido para lo que está en marcha, en contorno para lo demás, en rojo para lo que se paró. */
-export function Stamp({ tone = "outline", children }: { tone?: "solid" | "outline" | "alert"; children: ReactNode }) {
-	const cls = tone === "solid" ? "stamp stamp--solid" : tone === "alert" ? "stamp stamp--alert" : "stamp";
+/**
+ * Un estado con su palabra: hielo para lo que está en marcha, niebla para lo
+ * demás, coral para lo que se paró, y en verde sólo lo que sirve tráfico.
+ */
+export function Stamp({ tone = "outline", children }: { tone?: "solid" | "outline" | "alert" | "live"; children: ReactNode }) {
+	const cls =
+		tone === "solid" ? "stamp stamp--solid" : tone === "alert" ? "stamp stamp--alert" : tone === "live" ? "stamp stamp--live" : "stamp";
 	return <span className={cls}>{children}</span>;
 }
 
@@ -385,17 +372,14 @@ export function FieldShell({
 	return (
 		<div className="min-w-0">
 			<div className="mb-1.5 flex items-baseline justify-between gap-3">
-				<label htmlFor={id} className="t-tab">
+				<label htmlFor={id} className="sk-label mb-0!">
 					{label}
 				</label>
 				{counter}
 			</div>
 			{children}
 			{(reserve || message) && (
-				<p
-					id={`${id}-msg`}
-					aria-live="polite"
-					className={`mt-1 mb-2 min-h-[1.4rem] text-[0.9rem] leading-snug ${error ? "font-bold text-(--destructive)" : "text-(--ink-2)"}`}>
+				<p id={`${id}-msg`} aria-live="polite" className={`sk-help mb-2 min-h-5 leading-snug ${error ? `${ERROR_TEXT}! font-medium` : ""}`}>
 					{message}
 				</p>
 			)}
@@ -410,16 +394,12 @@ export function FieldShell({
  */
 export function CharCount({ value, max }: { value: string; max: number }) {
 	if (value.length < max * 0.75) return null;
-	return (
-		<span className={`t-cond t-num text-[0.85rem] ${value.length >= max ? "font-bold text-(--destructive)" : "text-(--ink-2)"}`}>
-			{value.length}/{max}
-		</span>
-	);
+	return <span className={`sk-num text-[0.8125rem] ${value.length >= max ? `font-medium ${ERROR_TEXT}` : "text-(--sk-ink-3)"}`}>{value.length}/{max}</span>;
 }
 
 type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "id" | "value" | "onChange">;
 
-/** Un campo de una línea. `cond` lo pone en el corte condensado, para identificadores. */
+/** Un campo de una línea. `cond` lo pone en cifras tabulares, para identificadores. */
 export function TextField({
 	id,
 	label,
@@ -452,7 +432,7 @@ export function TextField({
 				aria-invalid={error ? true : undefined}
 				aria-describedby={`${id}-msg`}
 				onChange={(e) => onChange(e.target.value)}
-				className={`field ${cond ? "field--cond" : ""} ${className}`}
+				className={`field ${cond ? "sk-num" : ""} ${className}`}
 				{...input}
 			/>
 		</FieldShell>
@@ -460,9 +440,8 @@ export function TextField({
 }
 
 /**
- * La variante de varias líneas. Sin `hint` no reserva línea de aviso: un
- * texto libre con techo de caracteres no tiene error que dar (el contador ya
- * lo dice), y una línea vacía fija debajo sería un hueco sin motivo.
+ * La variante de varias líneas. Sin `hint` no reserva línea de aviso: un texto
+ * libre con techo de caracteres no tiene error que dar (el contador ya lo dice).
  */
 export function TextArea({
 	id,
@@ -497,7 +476,7 @@ export function TextArea({
 	);
 }
 
-/** Un desplegable nativo con el trazo del mundo: el control que el sistema ya sabe manejar. */
+/** Un desplegable nativo: el control que el sistema ya sabe manejar, con la flecha del mundo. */
 export function SelectField({
 	id,
 	label,
@@ -516,7 +495,7 @@ export function SelectField({
 }) {
 	return (
 		<FieldShell id={id} label={label} hint={hint}>
-			<select id={id} value={value} aria-describedby={`${id}-msg`} onChange={(e) => onChange(e.target.value)} className="field" {...rest}>
+			<select id={id} value={value} aria-describedby={`${id}-msg`} onChange={(e) => onChange(e.target.value)} className="field sk-select" {...rest}>
 				{options.map((option) => (
 					<option key={option.id} value={option.id}>
 						{option.label}
@@ -527,7 +506,7 @@ export function SelectField({
 	);
 }
 
-/** La casilla cuadrada: un checkbox nativo escondido bajo un cuadrado con el trazo del mundo. */
+/** La casilla: un checkbox nativo escondido bajo un cuadrado redondeado que se llena del acento. */
 export function Check({
 	id,
 	checked,
@@ -538,17 +517,15 @@ export function Check({
 	id?: string;
 	checked: boolean;
 	onChange: (next: boolean) => void;
-	/** Impreso al 45% y sin cursor de mano: el motivo lo dice el texto de al lado. */
+	/** Atenuada y sin cursor de mano: el motivo lo dice el texto de al lado. */
 	disabled?: boolean;
 	children: ReactNode;
 }) {
 	const fallback = useId();
 	const inputId = id ?? fallback;
 	return (
-		<label
-			htmlFor={inputId}
-			className={`inline-flex items-start gap-3 select-none ${disabled ? "cursor-not-allowed opacity-45" : "cursor-pointer"}`}>
-			<span className="relative mt-0.5 shrink-0">
+		<label htmlFor={inputId} className={`inline-flex select-none items-start gap-3 ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
+			<span className="relative mt-px shrink-0">
 				<input
 					id={inputId}
 					type="checkbox"
@@ -559,11 +536,11 @@ export function Check({
 				/>
 				<span
 					aria-hidden="true"
-					className="flex size-5 items-center justify-center border-[length:var(--stroke)] border-(--ink) bg-(--paper) outline-none peer-checked:bg-(--ink) peer-focus-visible:outline-[length:var(--stroke)] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-(--ink)">
-					{checked && <CheckIcon className="size-3.5 text-(--paper)" strokeWidth={3.5} />}
+					className="flex size-5 items-center justify-center rounded-[6px] bg-(--sk-surface) shadow-[inset_0_0_0_1px_var(--sk-hair-2)] transition-[background-color,box-shadow] duration-150 peer-checked:bg-(--sk-accent) peer-checked:shadow-none peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-(--sk-accent)">
+					{checked && <CheckIcon className="size-3.5 text-(--sk-night)" strokeWidth={3} />}
 				</span>
 			</span>
-			<span className="min-w-0 text-[0.95rem] leading-snug">{children}</span>
+			<span className="min-w-0 text-[0.9375rem] leading-snug text-(--sk-ink-2)">{children}</span>
 		</label>
 	);
 }
@@ -575,26 +552,31 @@ export function Alert({ error, children }: { error?: Error | null; children?: Re
 	const text = children ?? error?.message;
 	if (!text) return null;
 	return (
-		<p role="alert" className="border-[length:var(--stroke)] border-(--destructive) px-3 py-2 text-[0.95rem] leading-snug font-bold text-(--destructive)">
-			{text}
-		</p>
+		<div role="alert" className="sk-alert sk-alert--error">
+			<CircleAlert className="mt-0.5 size-4 shrink-0" strokeWidth={2} aria-hidden="true" />
+			<p className="min-w-0">{text}</p>
+		</div>
 	);
 }
 
-/** Una nota con filete: la letra pequeña que acompaña a una parada. */
+/**
+ * Una nota: la letra pequeña que acompaña a una sección, sobre un filete y no
+ * en una caja. Dentro de una tarjeta, una caja más sería una tarjeta dentro de
+ * otra; una caja (`StatusBox`) se reserva para un estado que hay que mirar.
+ */
 export function Note({ title, children }: { title?: string; children: ReactNode }) {
 	return (
-		<div className="rule-thin pt-3">
-			{title && <p className="t-tab mb-1 text-(--ink-2)">{title}</p>}
-			<p className="max-w-[68ch] text-[0.95rem] leading-snug text-(--ink-2)">{children}</p>
+		<div className="border-t border-(--sk-hair) pt-3">
+			{title && <p className="mb-0.5 text-[0.8125rem] font-medium text-(--sk-ink)">{title}</p>}
+			<p className="max-w-[68ch] text-[0.875rem] leading-snug text-(--sk-ink-2)">{children}</p>
 		</div>
 	);
 }
 
 /**
  * Una caja de estado: un aviso que tiene que leerse antes de lo demás (la
- * solicitud en revisión, la suspensión, la cuenta de Stripe). El sello dice el
- * estado con una palabra; el borde rojo sólo para lo que se paró.
+ * solicitud en revisión, la suspensión, la cuenta de Stripe). El estado va en
+ * su píldora con una palabra; el fondo rojo apagado sólo para lo que se paró.
  */
 export function StatusBox({
 	tone = "ink",
@@ -610,12 +592,12 @@ export function StatusBox({
 	footer?: ReactNode;
 }) {
 	return (
-		<div className={`border-[length:var(--stroke)] p-4 md:p-5 ${tone === "alert" ? "border-(--destructive)" : "border-(--ink)"}`}>
+		<div className={`rounded-[16px] p-4 md:p-5 ${tone === "alert" ? "bg-[rgba(246,164,156,0.09)]" : "bg-(--sk-ground)"}`}>
 			<div className="flex flex-wrap items-center gap-x-3 gap-y-2">
 				{stamp}
-				<p className="font-bold leading-snug">{title}</p>
+				<p className={`font-medium leading-snug ${tone === "alert" ? "text-[#f6a49c]" : "text-(--sk-ink)"}`}>{title}</p>
 			</div>
-			{children && <div className="mt-2 flex max-w-[72ch] flex-col gap-2 text-[0.95rem] leading-relaxed text-(--ink-2)">{children}</div>}
+			{children && <div className="mt-2 flex max-w-[72ch] flex-col gap-2 text-[0.9375rem] leading-relaxed text-(--sk-ink-2)">{children}</div>}
 			{footer && <div className="mt-4 flex flex-wrap items-center gap-3">{footer}</div>}
 		</div>
 	);
@@ -624,10 +606,9 @@ export function StatusBox({
 // ─── acciones ────────────────────────────────────────────────────────────────
 
 /**
- * El pie de cada formulario del pliego: el aviso a la izquierda (con su sitio
- * reservado y siempre una palabra: «No changes.», «Unsaved changes.»,
- * «Saved.») y el billete de guardar, en contorno y apagado hasta que hay algo
- * que guardar, sólido cuando lo hay.
+ * El pie de cada formulario: el aviso a la izquierda (con su sitio reservado y
+ * siempre una palabra: «No changes.», «Unsaved changes.», «Saved.») y el botón
+ * de guardar, apagado hasta que hay algo que guardar.
  */
 export function SaveRow({
 	dirty,
@@ -640,10 +621,10 @@ export function SaveRow({
 	dirty: boolean;
 	pending: boolean;
 	saved?: boolean;
-	/** Hay cambios pero un campo no pasaría: el billete sigue cerrado y el aviso lo dice. */
+	/** Hay cambios pero un campo no pasaría: el botón sigue cerrado y el aviso lo dice. */
 	blocked?: boolean;
 	label?: string;
-	/** Otro billete a la izquierda del de guardar: «Cancel», «Revert». */
+	/** Otro botón a la izquierda del de guardar: «Cancel», «Revert». */
 	extra?: ReactNode;
 }) {
 	const status = pending
@@ -655,20 +636,14 @@ export function SaveRow({
 				: dirty
 					? "Unsaved changes."
 					: "No changes.";
-	// Sólido sólo cuando hay algo que guardar: en reposo el billete es un
-	// contorno apagado, no una losa gris en cada parada.
 	const ready = dirty && !blocked;
 	return (
-		<div className="rule-thin flex flex-wrap items-center justify-end gap-x-3 gap-y-2 pt-4">
-			<p className="mr-auto min-h-[1.4rem] text-[0.95rem] text-(--ink-2)" aria-live="polite">
+		<div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-2 border-t border-(--sk-hair) pt-4">
+			<p className="sk-small mr-auto min-h-5" aria-live="polite">
 				{status}
 			</p>
 			{extra}
-			<button
-				type="submit"
-				className={`ticket ticket--sm ${ready ? "ticket--solid" : ""}`}
-				disabled={!ready || pending}
-				aria-busy={pending || undefined}>
+			<button type="submit" className={`ticket ticket--sm ${ready ? "ticket--solid" : ""}`} disabled={!ready || pending} aria-busy={pending || undefined}>
 				{pending ? "Saving…" : label}
 			</button>
 		</div>
@@ -676,8 +651,8 @@ export function SaveRow({
 }
 
 /**
- * Copiar un valor. Con `text` es un billete con palabra; sin él, un billete
- * cuadrado con el glifo junto a un valor que ya tiene rótulo. Un portapapeles
+ * Copiar un valor. Con `text` es una píldora con palabra; sin él, un botón
+ * redondo con el glifo junto a un valor que ya tiene rótulo. Un portapapeles
  * rechazado cuesta la comodidad, no el valor: sigue impreso y seleccionable.
  */
 export function CopyTicket({ value, label, text }: { value: string; label: string; text?: string }) {
@@ -690,7 +665,7 @@ export function CopyTicket({ value, label, text }: { value: string; label: strin
 				aria-label={text ? undefined : label}
 				title={text ? undefined : label}
 				className={text ? "ticket ticket--sm shrink-0" : "ticket ticket--glyph shrink-0"}>
-				{copied ? <CheckIcon className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
+				{copied ? <CheckIcon className="size-4" strokeWidth={2} aria-hidden="true" /> : <Copy className="size-4" strokeWidth={1.75} aria-hidden="true" />}
 				{text && (copied ? "Copied" : text)}
 			</button>
 			<span className="sr-only" aria-live="polite">
@@ -705,11 +680,11 @@ export interface MenuItem {
 	icon?: LucideIcon;
 	onSelect: () => void;
 	disabled?: boolean;
-	/** Un acto irreversible: se imprime en rojo de error. */
+	/** Un acto irreversible: va en el rojo de error. */
 	danger?: boolean;
 }
 
-/** El menú de acciones: un billete cuadrado que abre un panel de papel con grupos. */
+/** El menú de acciones: un botón redondo que abre un menú de vidrio con grupos. */
 export function ActionMenu({
 	label,
 	groups,
@@ -734,13 +709,13 @@ export function ActionMenu({
 				aria-haspopup="menu"
 				aria-expanded={open}
 				onClick={() => setOpen((v) => !v)}>
-				<MoreHorizontal className="size-4" aria-hidden="true" />
+				<MoreHorizontal className="size-4" strokeWidth={1.75} aria-hidden="true" />
 			</button>
 			{open && (
 				<div role="menu" aria-label={label} className={`menu-panel top-full mt-2 ${align === "end" ? "right-0" : "left-0"}`}>
 					{groups.map((group, i) => (
-						<div key={group.title ?? i} className={i > 0 ? "rule-thin" : undefined}>
-							{group.title && <p className="t-tab px-4 pt-3 pb-1 text-(--ink-2)">{group.title}</p>}
+						<div key={group.title ?? i} className={i > 0 ? "mt-1 border-t border-(--sk-hair) pt-1" : undefined}>
+							{group.title && <p className="sk-small px-3 pb-1 pt-2 font-medium">{group.title}</p>}
 							{group.items.map((item) => (
 								<button
 									key={item.label}
@@ -753,7 +728,7 @@ export function ActionMenu({
 										setOpen(false);
 										item.onSelect();
 									}}>
-									{item.icon && <item.icon className="size-4 shrink-0" aria-hidden="true" />}
+									{item.icon && <item.icon className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />}
 									{item.label}
 								</button>
 							))}
@@ -766,11 +741,11 @@ export function ActionMenu({
 }
 
 /**
- * El diálogo de papel, sobre el `<dialog>` nativo: el sistema ya atrapa el
- * foco, lo devuelve al cerrar y sabe de Escape. Se reserva para los actos que
- * no se deshacen (rotar un secreto, borrar) y para el secreto que se enseña
- * una sola vez, que se abre con `dismissable={false}`: ni Escape ni un clic
- * fuera lo cierran, sólo la confirmación de dentro.
+ * El diálogo, sobre el `<dialog>` nativo: el sistema ya atrapa el foco, lo
+ * devuelve al cerrar y sabe de Escape. Se reserva para los actos que no se
+ * deshacen (rotar un secreto, borrar) y para el secreto que se enseña una sola
+ * vez, que se abre con `dismissable={false}`: ni Escape ni un clic fuera lo
+ * cierran, sólo la confirmación de dentro.
  */
 export function SheetDialog({
 	open,
@@ -818,34 +793,34 @@ export function SheetDialog({
 			onClick={(e) => {
 				if (dismissable && e.target === e.currentTarget) onClose();
 			}}>
-			<div className="flex shrink-0 items-start justify-between gap-4 border-b-[length:var(--stroke)] border-(--ink) px-5 py-4">
+			<div className="flex shrink-0 items-start justify-between gap-4 px-6 pb-2 pt-6">
 				<div className="min-w-0">
-					<h2 id={titleId} className="t-h3 text-[1.25rem]">
+					<h2 id={titleId} className="sk-h3 text-[1.25rem]">
 						{title}
 					</h2>
 					{description && (
-						<p id={descId} className="mt-1 text-[0.95rem] leading-snug text-(--ink-2)">
+						<p id={descId} className="sk-body mt-1.5 text-[0.9375rem] leading-snug">
 							{description}
 						</p>
 					)}
 				</div>
 				{dismissable && (
 					<button type="button" className="ticket ticket--glyph shrink-0" aria-label="Close" onClick={onClose}>
-						<X className="size-4" aria-hidden="true" />
+						<X className="size-4" strokeWidth={1.75} aria-hidden="true" />
 					</button>
 				)}
 			</div>
-			{children && <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">{open && children}</div>}
-			{footer && open && <div className="shrink-0 border-t border-(--rule) px-5 py-4">{footer}</div>}
+			{children && <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">{open && children}</div>}
+			{footer && open && <div className="shrink-0 border-t border-(--sk-hair) px-6 py-4">{footer}</div>}
 		</dialog>
 	);
 }
 
 /**
- * El pie de una confirmación en un diálogo de papel: el error del servidor si
- * lo hubo, «Cancel» primero y el acto después. El foco empieza en «Cancel», el
- * lado que no hace nada, así que un Intro de más no borra ni rota nada.
- * `danger` imprime el acto en el rojo de error.
+ * El pie de una confirmación: el error del servidor si lo hubo, «Cancel»
+ * primero y el acto después. El foco empieza en «Cancel», el lado que no hace
+ * nada, así que un Intro de más no borra ni rota nada. `danger` pinta el acto
+ * en el rojo de error.
  */
 export function ConfirmRow({
 	danger = false,
@@ -869,11 +844,7 @@ export function ConfirmRow({
 }) {
 	return (
 		<div className="flex flex-col gap-3">
-			{error && (
-				<p role="alert" className="text-[0.95rem] font-bold text-(--destructive)">
-					{error.message}
-				</p>
-			)}
+			{error && <Alert error={error} />}
 			<div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
 				<button type="button" className="ticket ticket--sm" data-autofocus disabled={pending} onClick={onCancel}>
 					Cancel
@@ -894,26 +865,28 @@ export function ConfirmRow({
 // ─── listas y huecos ─────────────────────────────────────────────────────────
 
 /**
- * Pasos en orden sobre una espina vertical: la línea de 10px con su marca por
- * paso. Para lo que se hace en una secuencia (qué hacer si se filtra un
- * secreto, qué pasa después de compartir el enlace), donde el orden es el dato.
+ * Pasos en orden sobre un riel vertical: un filete fino con un punto por paso.
+ * Para lo que se hace en una secuencia (qué hacer si se filtra un secreto, qué
+ * pasa después de compartir el enlace), donde el orden es el dato.
  */
 export function Spine({ steps }: { steps: { title: string; text: ReactNode }[] }) {
 	return (
-		<ol className="relative max-w-2xl pl-10">
-			<span aria-hidden="true" className="absolute top-1 bottom-1 left-3 bg-(--ink)" style={{ width: "var(--line)" }} />
+		<ol className="relative max-w-2xl space-y-4">
+			<span aria-hidden="true" className="absolute bottom-3 left-[9.5px] top-3 w-px bg-(--sk-hair-2)" />
 			{steps.map((step) => (
-				<li key={step.title} className="relative py-2.5">
-					<span aria-hidden="true" className="absolute top-[1.1rem] -left-7 h-[3px] w-6 bg-(--ink)" />
-					<p className="leading-tight font-bold">{step.title}</p>
-					<p className="mt-1 text-[0.95rem] leading-snug text-(--ink-2)">{step.text}</p>
+				<li key={step.title} className="relative flex gap-3.5">
+					<span aria-hidden="true" className="relative mt-0.5 size-5 shrink-0 rounded-full bg-(--sk-surface) ring-1 ring-(--sk-hair-2)" />
+					<div className="min-w-0">
+						<p className="font-medium leading-tight text-(--sk-ink)">{step.title}</p>
+						<p className="mt-1 text-[0.9375rem] leading-snug text-(--sk-ink-2)">{step.text}</p>
+					</div>
 				</li>
 			))}
 		</ol>
 	);
 }
 
-/** La forma de lo que viene mientras llega: bloques en la única tinta clara, sin girar nada. */
+/** La forma de lo que viene mientras llega: bloques de niebla que respiran despacio, sin girar nada. */
 export function Skeleton({ rows = 4 }: { rows?: number }) {
 	return (
 		<div aria-busy="true" aria-label="Loading" className="flex flex-col gap-3">

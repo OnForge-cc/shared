@@ -20,5 +20,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["ui", "lib", "hooks", "components"]
+  "include": ["ui", "lib", "hooks", "components", "sky"]
 }

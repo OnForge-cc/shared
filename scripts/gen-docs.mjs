@@ -527,7 +527,7 @@ function objectLikeAfter(src, from) {
  * carpetas en la raíz (`ui/`, `worker/`, `lib/`…), así que cuando no hay `src/`
  * se recorren esas.
  */
-const ROOT_SOURCE_DIRS = ["components", "hooks", "lib", "ui", "worker"];
+const ROOT_SOURCE_DIRS = ["components", "hooks", "lib", "sky", "ui", "worker"];
 
 /**
  * ¿Es este archivo un diccionario de traducción que no dice nada propio?
@@ -837,7 +837,10 @@ function applyBlocks(text, blocks) {
 				);
 				if (!re.test(piece)) continue;
 				re.lastIndex = 0;
-				piece = piece.replace(re, `$1\n<!-- No edites aquí: lo reescribe \`npm run docs\`. -->\n\n${body}\n\n$2`);
+				// Con una función y no una cadena: un `$` en el cuerpo (un `$` en el
+				// comentario de cabecera de un módulo) sería un patrón de sustitución y
+				// pegaría medio documento dentro de la tabla.
+				piece = piece.replace(re, (_match, open, close) => `${open}\n<!-- No edites aquí: lo reescribe \`npm run docs\`. -->\n\n${body}\n\n${close}`);
 				used.add(key);
 			}
 			return piece;

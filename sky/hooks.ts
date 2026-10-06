@@ -1,16 +1,25 @@
 /**
- * Los hooks de las piezas de consola (`components/console-kit.tsx`), el reloj del horario, el
- * aviso que se apaga solo, el cierre de un panel flotante, el salto a una parada
- * y la anchura estrecha.
+ * Hooks de scroll y de montaje contra los que se animan las páginas de Clear Sky,
+ * y los tres que usan las piezas de consola de `console.tsx` (`useFlash`,
+ * `useDismiss`, `useScrollToStop`). Compartidos por onforge, admin, partners y
+ * developers; el único hook que dependía de la edición (`useLocalizedHref`) se
+ * quedó en onforge, que es el único que tiene ediciones.
+ *
+ * Un módulo propio en vez de vivir junto a los componentes: Fast Refresh sólo
+ * vuelve a renderizar un archivo que exporta componentes y nada más, y una
+ * recarga completa en cada cambio de texto es justo lo que el servidor de
+ * desarrollo está para evitar.
  */
-import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { useCallback, useState, useEffect, useRef, type RefObject } from "react";
 
 /**
- * El reloj del horario en milisegundos, leído de `--clock` para que ningún
- * intervalo de JavaScript pueda desviarse del que usa el CSS. 12 s si todavía
- * no hay DOM.
+ * El reloj del horario en milisegundos, leído de `--clock` en `.site` para que
+ * ningún intervalo de JavaScript pueda desviarse del que usa el CSS. 12 s si
+ * todavía no hay DOM.
  */
 export function useClockMs(): number {
+	// `--clock` también está declarado en `:root` (site.css) precisamente para
+	// poder leerlo antes de que exista ningún `.site` en el DOM.
 	const [ms] = useState(() => {
 		if (typeof document === "undefined") return 12000;
 		const raw = getComputedStyle(document.documentElement).getPropertyValue("--clock").trim();
@@ -79,7 +88,8 @@ export function useDismiss(
 /**
  * Lleva a la parada que nombra la URL una vez que existe: `#members` o, para
  * una ruta vieja que ahora es una parada de otra hoja, la que se pasa como
- * `fallback`.
+ * `fallback`. El navegador no puede hacerlo solo porque la parada aún no está
+ * pintada cuando carga la página.
  */
 export function useScrollToStop(ready: boolean, fallback?: string): void {
 	const done = useRef(false);
@@ -103,4 +113,60 @@ export function useNarrow(query = "(max-width: 47.9rem)"): boolean {
 		return () => mq.removeEventListener("change", onChange);
 	}, [query]);
 	return narrow;
+}
+
+/** Se dispara una vez cuando el elemento observado entra en el viewport. */
+export function useInView() {
+	const ref = useRef<HTMLElement>(null);
+	const [inView, setInView] = useState(false);
+	useEffect(() => {
+		const el = ref.current;
+		if (!el) return;
+		const obs = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) {
+					setInView(true);
+					obs.disconnect();
+				}
+			},
+			{ threshold: 0.1 },
+		);
+		obs.observe(el);
+		return () => obs.disconnect();
+	}, []);
+	return { ref, inView };
+}
+
+/** Anima un número de 0 → target en cuanto `active` pasa a true. */
+export function useCounter(target: number, duration = 1200, active = false) {
+	const [value, setValue] = useState(0);
+	useEffect(() => {
+		if (!active) return;
+		let current = 0;
+		const step = target / (duration / 16);
+		const id = setInterval(() => {
+			current += step;
+			if (current >= target) {
+				setValue(target);
+				clearInterval(id);
+			} else {
+				setValue(Math.floor(current));
+			}
+		}, 16);
+		return () => clearInterval(id);
+	}, [target, duration, active]);
+	return value;
+}
+
+/**
+ * Devuelve true tras el primer frame de animación — se usa para las transiciones
+ * de entrada al montar.
+ */
+export function useMountVisible() {
+	const [visible, setVisible] = useState(false);
+	useEffect(() => {
+		const id = requestAnimationFrame(() => setVisible(true));
+		return () => cancelAnimationFrame(id);
+	}, []);
+	return visible;
 }

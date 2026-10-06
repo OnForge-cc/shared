@@ -1,38 +1,68 @@
 # @onforge/shared — documentación
 
 **El código común de las apps de OnForge.** UI (`ui/`, `components/`), cliente
-CRUD y helpers (`lib/`, `hooks/`) y tres módulos de worker (`worker/response`,
-`worker/email`, `worker/cookies`). Envía TypeScript crudo: lo compila el bundler
-de la app que lo consume.
+CRUD y helpers (`lib/`, `hooks/`), el mundo visual y sus piezas (`styles/`,
+`sky/`) y tres módulos de worker (`worker/response`, `worker/email`,
+`worker/cookies`). Envía TypeScript crudo: lo compila el bundler de la app que
+lo consume.
 
-`ui/`, `lib/`, `hooks/` y `components/` asumen el DOM; `worker/` asume
+`ui/`, `lib/`, `hooks/`, `components/` y `sky/` asumen el DOM; `worker/` asume
 `@cloudflare/workers-types`. Nunca se importa cruzando esa frontera (hay dos
 `tsconfig` por eso).
 
-El pin es a un **tag** de git (`v1.0.0`), no a master. Las dependencias de
-runtime son `peerDependencies`.
+El pin es a un **tag** de git, no a master (`v1.2.0`, por crear, en los cuatro
+consumidores: onforge y las tres consolas del subproyecto 4). Las dependencias de runtime
+son `peerDependencies`; cada consumidor las deduplica (`dedupe` en su
+`vite.config.ts`) para que no haya dos React.
+
+## Sky: el mundo «Clear Sky» de noche (2026-10-05)
+
+Desde el subproyecto 4 el mundo visual de OnForge vive aquí y no en cada repo:
+
+| Qué | Dónde | Quién lo consume |
+|---|---|---|
+| El mundo: tokens, tipografía, píldoras, tarjetas, vidrio, héroe, terminal, páginas interiores y el **bloque de consola** (el vocabulario del mapa reinterpretado en la noche, la barra lateral, el Logbook) | `styles/sky.css` (sobre `styles/site.css`) | los cuatro repos, desde su `index.css` |
+| El kit del sitio: marca, píldora, flecha; cabecera de página con el cielo, sección, aro, recorrido en pasos, preguntas, control segmentado, cierre | `sky/kit.tsx`, `sky/page.tsx`, `sky/sky-canvas.tsx`, `sky/night.ts`, `sky/hooks.ts` | onforge (envuelto en `features/frontend/sky/page.tsx`), partners, developers |
+| El documento de referencia: dos rieles, filtro, índice móvil y los bloques comunes | `sky/reference.tsx` | partners (`/programme`), developers (`/docs`) |
+| El marco de consola: barra lateral con destinos, barra superior con el rastro y la cuenta, salida por `#signout` | `sky/console-frame.tsx` | admin, partners (`/dashboard`) |
+| Las piezas de consola: `Section`, `CallingAt`, `Masthead`, `Stamp`, campos, `StatusBox`, `Note`, `SaveRow`, `SheetDialog`… | `sky/console.tsx`, `lib/use-copy.ts` | onforge (consola de apps), admin, partners |
+| El cliente de plataforma: `platformOrigin()` (`VITE_PLATFORM_ORIGIN`; localhost → `:8788`), `api()` con credenciales, `fetchMe()`, `signInUrl()`, `signOutAndGo()` | `lib/platform-client.ts` | admin, partners, developers |
+
+Reglas que las piezas ya cumplen y que un consumidor no debe deshacer (están
+en la cabecera de `sky.css` y en el `DESIGN.md` de cada consola): sólo noche;
+el ámbar como único acento; el verde sólo para `live`; Geist, y Geist Mono sólo
+para lo que se teclea; elevación por luz, nunca borde y sombra a la vez; vidrio
+sólo donde algo flota. Los iconos se tipan por su forma (`IconComponent`) porque
+cada consumidor trae su propia copia de lucide-react.
 
 ## Módulos
 
 <!-- BEGIN generated:modules -->
 <!-- No edites aquí: lo reescribe `npm run docs`. -->
 
-Módulos de las carpetas publicadas (39), con la primera línea de su comentario de cabecera.
+Módulos de las carpetas publicadas (46), con la primera línea de su comentario de cabecera.
 
 | Archivo | Qué hace |
 | --- | --- |
 | [`components/confirm-delete-modal.tsx`](../components/confirm-delete-modal.tsx) | «¿Seguro?» antes de un borrado, igual en toda la plataforma. |
-| [`components/console-kit.tsx`](../components/console-kit.tsx) | Las piezas de los paneles, en el vocabulario del mapa. |
-| [`components/console.tsx`](../components/console.tsx) | Las piezas de página que usa toda la plataforma (`PageHeader`, `StatGrid`, `StatTile`, `PanelHeader`, `EmptyState`, `ConsoleTag`), redibujadas en el mundo del mapa de… |
 | [`components/form-modal.tsx`](../components/form-modal.tsx) | El envoltorio de cualquier formulario en diálogo: título, descripción y hueco. |
-| [`components/map.tsx`](../components/map.tsx) | Las piezas pequeñas del mapa que comparten las apps de OnForge. |
 | [`components/theme-provider.tsx`](../components/theme-provider.tsx) | El mundo del mapa se lee a la luz del día: no hay tema oscuro en el sitio, en la puerta, en las consolas ni en las apps (decidido el 2026-09-29). |
-| [`hooks/map.ts`](../hooks/map.ts) | Los hooks de las piezas de consola (`components/console-kit.tsx`), el reloj del horario, el aviso que se apaga solo, el cierre de un panel flotante, el salto a una… |
 | [`lib/crud-api.ts`](../lib/crud-api.ts) | El cliente CRUD que se repetía en cada feature, escrito una vez. |
 | [`lib/crud-hooks.ts`](../lib/crud-hooks.ts) | Los hooks de React Query que van encima de `crud-api.ts`. |
 | [`lib/initials.ts`](../lib/initials.ts) | Dos letras en lugar de alguien que todavía no tiene avatar. |
+| [`lib/platform-client.ts`](../lib/platform-client.ts) | Hablar con el control plane desde una consola que vive en otro origen (admin., partners., developers. |
 | [`lib/use-copy.ts`](../lib/use-copy.ts) | Copiar, hecho una sola vez para todo el proyecto: la misma implementación que partners y developers, la que usa `CopyTicket` en `console.tsx`. |
 | [`lib/utils.ts`](../lib/utils.ts) | `cn` — juntar clases de Tailwind sin que se peleen entre ellas. |
+| [`lib/vite-env.d.ts`](../lib/vite-env.d.ts) | Las variables de build que lee el paquete (`import.meta.env`). |
+| [`sky/console-frame.tsx`](../sky/console-frame.tsx) | El marco de consola de admin, partners y developers, en el mundo «Clear Sky» de noche: la forma de una app de trabajo, la misma que la consola de onforge. |
+| [`sky/console.tsx`](../sky/console.tsx) | Las piezas de la consola, en el mundo «Clear Sky» de noche (2026-10-05). |
+| [`sky/hooks.ts`](../sky/hooks.ts) | Hooks de scroll y de montaje contra los que se animan las páginas de Clear Sky, y los tres que usan las piezas de consola de `console.tsx` (`useFlash`, `useDismiss`,… |
+| [`sky/kit.tsx`](../sky/kit.tsx) | Las piezas del mundo de OnForge («Clear Sky» de noche): la marca, la píldora y la flecha. |
+| [`sky/night.ts`](../sky/night.ts) | El documento entero es de noche mientras se ve una página de Clear Sky: el fondo de `<html>` (lo que asoma en el rebote del scroll) y el color de la barra del navegador. |
+| [`sky/page.tsx`](../sky/page.tsx) | Las piezas de página del mundo de OnForge («Clear Sky» de noche), compartidas por el sitio de onforge y las páginas públicas de partners y developers: la cabecera de… |
+| [`sky/platform-client.test.ts`](../sky/platform-client.test.ts) | El cliente de plataforma: la URL de entrada, las credenciales en cada llamada, la frase del servidor y un solo refresh. |
+| [`sky/reference.tsx`](../sky/reference.tsx) | Un documento de referencia en el mundo «Clear Sky» de noche: las condiciones del programa de partners (`/programme`) y la documentación de developers (`/docs`). |
+| [`sky/sky-canvas.tsx`](../sky/sky-canvas.tsx) | El cielo de OnForge: un solo shader WebGL2, sin dependencias. |
 | [`ui/alert-dialog.tsx`](../ui/alert-dialog.tsx) | El diálogo de consecuencias: el mismo papel que `Dialog`, pero no se cierra al pulsar fuera y el foco empieza en «Cancel», el lado que no hace nada. |
 | [`ui/avatar.tsx`](../ui/avatar.tsx) | La cara de alguien es su monograma: su foto, o sus iniciales en el corte condensado, dentro de un cuadrado con el trazo del mundo. |
 | [`ui/badge.tsx`](../ui/badge.tsx) | El sello: un estado impreso en una caja con el trazo del mundo. |
@@ -91,6 +121,7 @@ _Sin cron propio._
 | Script | Comando |
 | --- | --- |
 | `npm run check:neutral` | `node scripts/check-neutral.mjs` |
+| `npm run test` | `vitest run` |
 | `npm run typecheck` | `tsc -p tsconfig.ui.json --noEmit && tsc -p tsconfig.worker.json --noEmit` |
 | `npm run docs` | `node scripts/gen-docs.mjs` |
 | `npm run docs:check` | `node scripts/gen-docs.mjs --check` |
