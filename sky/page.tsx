@@ -2,8 +2,8 @@
  * Las piezas de página del mundo de OnForge («Clear Sky» de noche), compartidas
  * por el sitio de onforge y las páginas públicas de partners y developers: la
  * cabecera de página con su cielo, el encabezado de sección, el aro de icono,
- * las preguntas, el control segmentado y el cierre. Las mismas formas que
- * `ondesk/src/features/frontend/sky/page.tsx`.
+ * el recorrido en pasos, las preguntas, el control segmentado y el cierre. Las
+ * mismas formas que `ondesk/src/features/frontend/sky/page.tsx`.
  *
  * Sin edición ni sesión dentro: reciben hrefs y etiquetas ya resueltos. onforge
  * los envuelve (`features/frontend/sky/page.tsx`) para pasar los enlaces por su
@@ -15,11 +15,18 @@
  * adorno, el ámbar como único acento, el verde sólo para `live`, vidrio sólo
  * sobre el cielo.
  */
-import { useRef, useState } from "react";
-import { ChevronDown, type LucideIcon } from "lucide-react";
+import { useRef, useState, type ComponentType } from "react";
+import { ChevronDown } from "lucide-react";
 import { useNarrow } from "./hooks";
 import { SkyCanvas } from "./sky-canvas";
 import { SkArrow, SkButton } from "./kit";
+
+/**
+ * Un icono de lucide, tipado por su forma y no por la clase del paquete: cada
+ * consola trae su propia copia de lucide-react y la de este paquete es otra
+ * instancia para TypeScript, aunque el bundle deduplique las dos en una.
+ */
+export type IconComponent = ComponentType<{ className?: string; strokeWidth?: number; "aria-hidden"?: boolean | "true" | "false" }>;
 
 // ─── la cabecera de página ───────────────────────────────────────────────────
 
@@ -129,7 +136,7 @@ export function Section({
 // ─── marcadores ──────────────────────────────────────────────────────────────
 
 /** Un icono dentro de un círculo: de vidrio sólo donde flota sobre el cielo; sobre el suelo, un aro de línea. */
-export function Bead({ icon: Icon, size = "md", variant = "line" }: { icon: LucideIcon; size?: "md" | "lg"; variant?: "glass" | "line" }) {
+export function Bead({ icon: Icon, size = "md", variant = "line" }: { icon: IconComponent; size?: "md" | "lg"; variant?: "glass" | "line" }) {
 	return (
 		<span
 			className={`inline-flex shrink-0 items-center justify-center rounded-full text-(--sk-ink) ${
@@ -138,6 +145,26 @@ export function Bead({ icon: Icon, size = "md", variant = "line" }: { icon: Luci
 			aria-hidden="true">
 			<Icon className={size === "lg" ? "size-5" : "size-[18px]"} strokeWidth={1.6} />
 		</span>
+	);
+}
+
+/** Un recorrido en pasos: aros unidos por una órbita punteada. Los pasos se nombran por lo que hacen. */
+export function StepList({ steps }: { steps: { icon: IconComponent; title: string; desc: React.ReactNode }[] }) {
+	// Cinco pasos no caben en cinco columnas hasta `lg`: antes van de dos en dos y
+	// la órbita, que sólo une una fila, se calla.
+	const wide = steps.length >= 5;
+	const cols = wide ? "sm:grid-cols-2 lg:grid-cols-5" : steps.length === 4 ? "md:grid-cols-4" : steps.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3";
+	return (
+		<ol className={`relative grid gap-10 md:gap-8 ${cols}`}>
+			<span className={`sk-orbit-line absolute left-6 right-12 top-6 hidden h-px ${wide ? "lg:block" : "md:block"}`} aria-hidden="true" />
+			{steps.map((step) => (
+				<li key={step.title} className="relative">
+					<Bead icon={step.icon} size="lg" />
+					<h3 className="sk-h3 mt-6 text-[1.125rem]">{step.title}</h3>
+					<p className="sk-body mt-2 max-w-sm text-[0.9375rem]">{step.desc}</p>
+				</li>
+			))}
+		</ol>
 	);
 }
 
