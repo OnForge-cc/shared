@@ -7,8 +7,9 @@
  *   los enlaces que salen a la plataforma. Fija mientras la página se mueve; en
  *   un teléfono es un cajón.
  * - Arriba, la barra: el rastro y el menú de cuenta. Se vuelve vidrio cuando la
- *   página se desplaza. `banner` va encima de todo (la franja del staff de
- *   admin, que dice en qué consola estás mientras miras la cuenta de otro).
+ *   página se desplaza. `banner` va encima de todo si una consola lo necesita
+ *   (admin lo usó para la franja del staff hasta el 2026-10-13; el rol va ahora
+ *   en el menú de cuenta, `account.role`).
  * - En el centro, la página, en una columna de 74rem sobre la noche.
  *
  * Vive en `@onforge/shared` y cada consola le pasa sus destinos. La raíz lleva
@@ -31,7 +32,7 @@ import { ArrowUpRight, ChevronDown, ChevronRight, Menu, X } from "lucide-react";
  */
 export type IconComponent = ComponentType<{ className?: string; strokeWidth?: number; "aria-hidden"?: boolean | "true" | "false" }>;
 import { signOutAndGo } from "../lib/platform-client";
-import { Monogram } from "./console";
+import { Monogram, Stamp } from "./console";
 import { useDismiss } from "./hooks";
 import { Mark } from "./kit";
 import { useNightDocument } from "./night";
@@ -61,6 +62,8 @@ export interface FrameAccount {
 	name: string;
 	email: string;
 	logoUrl?: string | null;
+	/** El rol de quien mira (admin), en una píldora junto al nombre. */
+	role?: string | null;
 	/** Las filas del menú de cuenta; la última suele ser «Sign out» (`href: "#signout"`). */
 	links: { label: string; href: string }[];
 }
@@ -321,10 +324,11 @@ function FrameAccountMenu({ account }: { account: FrameAccount }) {
 				<div role="menu" aria-label="Your account" className="menu-panel right-0 top-full mt-2 w-72">
 					<div className="flex items-center gap-3 px-3 pb-3 pt-2">
 						<Monogram name={account.name} logoUrl={account.logoUrl} size="sm" />
-						<div className="min-w-0">
+						<div className="min-w-0 flex-1">
 							<p className="truncate font-medium text-(--sk-ink)">{account.name}</p>
 							<p className="sk-small truncate">{account.email}</p>
 						</div>
+						{account.role && <Stamp>{account.role}</Stamp>}
 					</div>
 					<div className="border-t border-(--sk-hair) pt-1">
 						{account.links.map((link) =>

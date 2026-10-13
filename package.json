@@ -1,6 +1,6 @@
 {
   "name": "@onforge/shared",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "private": true,
   "type": "module",
   "description": "Código compartido de la plataforma OnForge (UI, el kit Clear Sky, CRUD, el cliente de plataforma, helpers de worker). TypeScript crudo: lo compila el bundler de la app que lo consume.",

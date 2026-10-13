@@ -40,7 +40,7 @@ cada consumidor trae su propia copia de lucide-react.
 <!-- BEGIN generated:modules -->
 <!-- No edites aquí: lo reescribe `npm run docs`. -->
 
-Módulos de las carpetas publicadas (46), con la primera línea de su comentario de cabecera.
+Módulos de las carpetas publicadas (47), con la primera línea de su comentario de cabecera.
 
 | Archivo | Qué hace |
 | --- | --- |
@@ -61,6 +61,7 @@ Módulos de las carpetas publicadas (46), con la primera línea de su comentario
 | [`sky/night.ts`](../sky/night.ts) | El documento entero es de noche mientras se ve una página de Clear Sky: el fondo de `<html>` (lo que asoma en el rebote del scroll) y el color de la barra del navegador. |
 | [`sky/page.tsx`](../sky/page.tsx) | Las piezas de página del mundo de OnForge («Clear Sky» de noche), compartidas por el sitio de onforge y las páginas públicas de partners y developers: la cabecera de… |
 | [`sky/platform-client.test.ts`](../sky/platform-client.test.ts) | El cliente de plataforma: la URL de entrada, las credenciales en cada llamada, la frase del servidor y un solo refresh. |
+| [`sky/platform-origin.test.ts`](../sky/platform-origin.test.ts) | Sin `VITE_PLATFORM_ORIGIN`, una consola en un subdominio habla con el apex de producción. |
 | [`sky/reference.tsx`](../sky/reference.tsx) | Un documento de referencia en el mundo «Clear Sky» de noche: las condiciones del programa de partners (`/programme`) y la documentación de developers (`/docs`). |
 | [`sky/sky-canvas.tsx`](../sky/sky-canvas.tsx) | El cielo de OnForge: un solo shader WebGL2, sin dependencias. |
 | [`ui/alert-dialog.tsx`](../ui/alert-dialog.tsx) | El diálogo de consecuencias: el mismo papel que `Dialog`, pero no se cierra al pulsar fuera y el foco empieza en «Cancel», el lado que no hace nada. |
