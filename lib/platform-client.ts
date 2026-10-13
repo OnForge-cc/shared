@@ -64,11 +64,14 @@ export function signInUrl(returnTo: string = window.location.href): string {
  */
 export class ApiError extends Error {
 	readonly status: number;
+	/** El resto del cuerpo del error: un 409 que apunta a otra fila lo dice aquí. */
+	readonly data: Record<string, unknown> | undefined;
 
-	constructor(message: string, status: number) {
+	constructor(message: string, status: number, data?: Record<string, unknown>) {
 		super(message);
 		this.name = "ApiError";
 		this.status = status;
+		this.data = data;
 	}
 }
 
@@ -85,13 +88,15 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 
 	if (!res.ok) {
 		let message = `Request failed (${res.status})`;
+		let data: Record<string, unknown> | undefined;
 		try {
-			const body = (await res.json()) as { error?: string };
+			const body = (await res.json()) as { error?: string } & Record<string, unknown>;
 			if (body.error) message = body.error;
+			data = body;
 		} catch {
 			// Un cuerpo que no es JSON: el fallo ocurrió antes de que corriera el handler.
 		}
-		throw new ApiError(message, res.status);
+		throw new ApiError(message, res.status, data);
 	}
 
 	return res.json() as Promise<T>;

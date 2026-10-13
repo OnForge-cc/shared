@@ -34,4 +34,11 @@ describe("platform client", () => {
 		expect(spy.mock.calls[1][0]).toBe("https://onforge.cc/api/auth/refresh");
 		spy.mockRestore();
 	});
+
+	it("an ApiError carries the rest of the server's body, for a refusal that points somewhere", async () => {
+		const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ error: "Opted out", code: "opted_out", conversation_id: "c1" }), { status: 409 }));
+		const failure = await api("/api/admin/sms/new").catch((e: unknown) => e);
+		expect(failure).toMatchObject({ status: 409, message: "Opted out", data: { code: "opted_out", conversation_id: "c1" } });
+		spy.mockRestore();
+	});
 });
