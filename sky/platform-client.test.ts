@@ -5,12 +5,12 @@ import { ApiError, api, fetchMe, signInUrl } from "../lib/platform-client";
 
 // jsdom corre en `localhost`, donde el cliente apuntaría al puerto local de
 // desarrollo; el build de producción fija el origen con esta variable.
-beforeAll(() => vi.stubEnv("VITE_PLATFORM_ORIGIN", "https://arcade.lat"));
+beforeAll(() => vi.stubEnv("VITE_PLATFORM_ORIGIN", "https://onforge.cc"));
 
 describe("platform client", () => {
 	it("signInUrl returns to the page it is given", () => {
-		expect(signInUrl("https://admin.arcade.lat/apps")).toBe(
-			"https://arcade.lat/auth/signin?return_to=https%3A%2F%2Fadmin.arcade.lat%2Fapps",
+		expect(signInUrl("https://admin.onforge.cc/apps")).toBe(
+			"https://onforge.cc/auth/signin?return_to=https%3A%2F%2Fadmin.onforge.cc%2Fapps",
 		);
 	});
 
@@ -19,7 +19,7 @@ describe("platform client", () => {
 		const failure = await api("/api/admin").catch((e: unknown) => e);
 		expect(failure).toBeInstanceOf(ApiError);
 		expect(failure).toMatchObject({ status: 403, message: "Forbidden" });
-		expect(spy.mock.calls[0][0]).toBe("https://arcade.lat/api/admin");
+		expect(spy.mock.calls[0][0]).toBe("https://onforge.cc/api/admin");
 		expect(spy.mock.calls[0][1]).toMatchObject({ credentials: "include" });
 		spy.mockRestore();
 	});
@@ -31,7 +31,7 @@ describe("platform client", () => {
 			.mockResolvedValueOnce(new Response("{}", { status: 401 }));
 		expect(await fetchMe()).toBeNull();
 		expect(spy).toHaveBeenCalledTimes(2);
-		expect(spy.mock.calls[1][0]).toBe("https://arcade.lat/api/auth/refresh");
+		expect(spy.mock.calls[1][0]).toBe("https://onforge.cc/api/auth/refresh");
 		spy.mockRestore();
 	});
 });
