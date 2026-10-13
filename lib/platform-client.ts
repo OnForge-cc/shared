@@ -10,7 +10,7 @@
  *    `fetch` same-site con `credentials: "include"`: las cookies se eligen por
  *    el host de la petición, no por el origen que la inicia;
  *  - `SameSite=Strict` lo permite, porque same-site se mide sobre el dominio
- *    registrable (`admin.arcade.lat → arcade.lat` es same-site), mientras que
+ *    registrable (`admin.onforge.cc → onforge.cc` es same-site), mientras que
  *    un sitio de terceros no lo es, y eso es lo que impide que
  *    `credentials: "include"` sea un agujero de CSRF;
  *  - el middleware del apex acepta este origen exacto (`consoleOrigins`, en
@@ -28,7 +28,7 @@
  * cambia aquí y en el build.
  */
 
-const PRODUCTION_ORIGIN = "https://arcade.lat";
+const PRODUCTION_ORIGIN = "https://onforge.cc";
 const LOCAL_ORIGIN = "http://localhost:8788";
 
 function isLocal(): boolean {
@@ -64,11 +64,14 @@ export function signInUrl(returnTo: string = window.location.href): string {
  */
 export class ApiError extends Error {
 	readonly status: number;
+	/** El resto del cuerpo del error: un 409 que apunta a otra fila lo dice aquí. */
+	readonly data: Record<string, unknown> | undefined;
 
-	constructor(message: string, status: number) {
+	constructor(message: string, status: number, data?: Record<string, unknown>) {
 		super(message);
 		this.name = "ApiError";
 		this.status = status;
+		this.data = data;
 	}
 }
 
@@ -85,13 +88,15 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 
 	if (!res.ok) {
 		let message = `Request failed (${res.status})`;
+		let data: Record<string, unknown> | undefined;
 		try {
-			const body = (await res.json()) as { error?: string };
+			const body = (await res.json()) as { error?: string } & Record<string, unknown>;
 			if (body.error) message = body.error;
+			data = body;
 		} catch {
 			// Un cuerpo que no es JSON: el fallo ocurrió antes de que corriera el handler.
 		}
-		throw new ApiError(message, res.status);
+		throw new ApiError(message, res.status, data);
 	}
 
 	return res.json() as Promise<T>;
@@ -99,6 +104,17 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 
 export function jsonBody(value: unknown): RequestInit {
 	return { headers: { "Content-Type": "application/json" }, body: JSON.stringify(value) };
+}
+
+/**
+ * Un archivo de la API como Blob, con la sesión: lo que una consola pinta en
+ * una URL de blob (una foto de MMS) y no puede pedir con un `<img src>`, que no
+ * manda credenciales a otro origen.
+ */
+export async function fetchBlob(path: string): Promise<Blob> {
+	const res = await fetch(platformUrl(path), { credentials: "include" });
+	if (!res.ok) throw new ApiError(`Request failed (${res.status})`, res.status);
+	return res.blob();
 }
 
 /**
