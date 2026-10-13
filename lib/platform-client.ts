@@ -102,6 +102,17 @@ export function jsonBody(value: unknown): RequestInit {
 }
 
 /**
+ * Un archivo de la API como Blob, con la sesión: lo que una consola pinta en
+ * una URL de blob (una foto de MMS) y no puede pedir con un `<img src>`, que no
+ * manda credenciales a otro origen.
+ */
+export async function fetchBlob(path: string): Promise<Blob> {
+	const res = await fetch(platformUrl(path), { credentials: "include" });
+	if (!res.ok) throw new ApiError(`Request failed (${res.status})`, res.status);
+	return res.blob();
+}
+
+/**
  * Guardar un archivo que la API sólo entrega a alguien con sesión (un CSV de
  * ingresos). Un `<a href>` al apex no mandaría la cookie desde este origen y
  * volvería con un 401, así que se pide con credenciales, los bytes se vuelven
